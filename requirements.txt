@@ -1,0 +1,49 @@
+# SIH26162 - saari dependencies ek jagah
+#
+# Ye padhne ke liye hai (kaun si library kis kaam ki).
+# Doosre laptop pe bilkul same versions chahiye to iski jagah:
+#     pip install -r requirements.lock.txt
+
+# --- data + geo ---
+geopandas        # naksha wala data (.gpkg)
+pandas
+shapely          # shakal (polygon, point)
+pyogrio          # geopandas ka tez file reader (.gpkg, .osm.pbf)
+rasterio         # ESA WorldCover ki .tif se pixel padhna (step2c)
+
+# --- model ---
+scikit-learn     # DBSCAN (step3) + CV splits aur metrics (step5, step7)
+xgboost          # ASLI classifier - step5 aur step7 dono isi pe hain
+shap             # feature attribution -> outputs/shap_summary.png
+joblib           # model.pkl save/load
+
+# --- dashboard + charts ---
+streamlit        # app.py
+folium           # naksha
+streamlit-folium
+matplotlib       # confusion matrix, feature importance
+
+# --- download + utils ---
+requests
+python-dotenv    # .env se FIRMS key padhna
+tqdm             # progress bar
+
+# --- VLM: satellite photo dekh kar label ---
+google-genai     # Gemini (FREE tier) - src/step4d_gemini.py
+
+# --- optional: PostGIS (zaroori NAHI) ---
+# sirf src/step6_postgis.py ke liye. GeoPackage se project poora chalta hai.
+sqlalchemy
+psycopg2-binary
+
+# --- optional: paid VLM (zaroori NAHI) ---
+# in dono ki zaroorat sirf src/step4b_vlm.py ke liye hai,
+# jo paid ANTHROPIC_API_KEY maangta hai. Project inke bina poora chalta hai.
+anthropic
+Pillow
+
+# --- React frontend ka backend (api/main.py) ---
+# Streamlit app.py iske bina bhi chalta hai. Ye sirf tab chahiye jab
+# web/ wala React dashboard chalana ho.
+fastapi
+uvicorn[standard]

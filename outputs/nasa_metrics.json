@@ -1,0 +1,74 @@
+{
+  "n_detections": 59078,
+  "n_static": 12231,
+  "imbalance": 3.8301855939825034,
+  "features": [
+    "frp",
+    "bright_ti4",
+    "bright_ti5",
+    "ti_diff",
+    "is_night",
+    "scan",
+    "track",
+    "conf_high",
+    "conf_low",
+    "month"
+  ],
+  "region_holdout": [
+    {
+      "held_out": "korba",
+      "n_test": 31442,
+      "n_static": 10127,
+      "f1": 0.6005915297967402,
+      "auc": 0.8797953603590488
+    },
+    {
+      "held_out": "singrauli",
+      "n_test": 10618,
+      "n_static": 1740,
+      "f1": 0.3772130211307824,
+      "auc": 0.706091966969883
+    },
+    {
+      "held_out": "punjab",
+      "n_test": 10155,
+      "n_static": 1,
+      "f1": 0.0,
+      "auc": 0.24807957455190077
+    },
+    {
+      "held_out": "uttarakhand",
+      "n_test": 5130,
+      "n_static": 0,
+      "f1": null,
+      "auc": null
+    },
+    {
+      "held_out": "jamnagar",
+      "n_test": 1733,
+      "n_static": 363,
+      "f1": 0.6851145038167938,
+      "auc": 0.96138826888661
+    }
+  ],
+  "region_holdout_mean_f1": 0.4157297636860791,
+  "feature_importance": {
+    "is_night": 0.8818538784980774,
+    "bright_ti4": 0.027372965589165688,
+    "month": 0.021318228915333748,
+    "conf_low": 0.01654127612709999,
+    "bright_ti5": 0.012310545891523361,
+    "frp": 0.011227257549762726,
+    "scan": 0.008999716490507126,
+    "track": 0.008981360122561455,
+    "ti_diff": 0.008220825344324112,
+    "conf_high": 0.0031738337129354477
+  },
+  "vs_human_labels": {
+    "auc": 0.7647058823529411,
+    "best_threshold": 0.25000000000000006,
+    "f1": 0.7058823529411765,
+    "accuracy": 0.8888888888888888,
+    "n": 45
+  }
+}

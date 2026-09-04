@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thermal Source Classifier — SIH 26162</title>
+    <meta name="description" content="Separating industrial thermal sources from forest fires and crop residue burning in NASA FIRMS satellite data." />
+    <script>
+      // Theme ko React se PEHLE lagao. Warna page pehle safed
+      // flash karega phir dark hoga - sasta dikhta hai.
+      (function () {
+        try {
+          // ?theme=dark URL mein ho to wahi jeete - screenshot lene aur
+          // "is link ko dark mein kholo" wale case ke liye.
+          var q = new URLSearchParams(location.search).get('theme');
+          var t = q === 'dark' || q === 'light' ? q : localStorage.getItem('tsc-theme');
+          if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

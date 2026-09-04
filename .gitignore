@@ -1,0 +1,14 @@
+.env
+venv/
+data/raw/
+data/chips/
+__pycache__/
+*.pyc
+PPT STUFF/
+web/node_modules/
+web/dist/
+
+# step8 live monitor ka runtime output - har run pe badalta hai
+outputs/disaster_alerts.log
+outputs/.alert_state.json
+data/processed/live_detections.gpkg

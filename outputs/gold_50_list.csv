@@ -1,0 +1,51 @@
+num,source_id,region,rule_label,n_detections,night_ratio,dist_to_industry_m,lifespan_days,lc_class,industry_name
+0,jamnagar_n335,jamnagar,AGRI_BURN,1,0.0,24821.7,0,unknown,
+1,jamnagar_n277,jamnagar,AGRI_BURN,1,0.0,19551.0,0,unknown,
+2,jamnagar_n226,jamnagar,AGRI_BURN,1,0.0,9196.9,0,unknown,
+3,jamnagar_n350,jamnagar,AGRI_BURN,1,0.0,16072.1,0,unknown,
+4,jamnagar_c7,jamnagar,INDUSTRIAL,9,1.0,504.2,307,unknown,
+5,jamnagar_c1,jamnagar,INDUSTRIAL,63,1.0,0.0,361,unknown,Reliance Refinery
+6,jamnagar_c3,jamnagar,INDUSTRIAL,31,1.0,0.0,360,unknown,Vadinar Refinery
+7,jamnagar_c0,jamnagar,INDUSTRIAL,16,1.0,0.0,337,unknown,Reliance Refinery
+8,jamnagar_n32,jamnagar,UNSURE,1,1.0,57.5,0,unknown,
+9,jamnagar_n22,jamnagar,UNSURE,1,0.0,7961.9,0,unknown,
+10,jamnagar_n37,jamnagar,UNSURE,1,0.0,3206.4,0,unknown,
+11,jamnagar_c21,jamnagar,UNSURE,4,0.0,2000.9,0,unknown,Essar Refinery
+12,punjab_c89,punjab,AGRI_BURN,4,0.0,3072.1,0,unknown,Deva Industries
+13,punjab_n409,punjab,AGRI_BURN,1,0.0,5971.5,0,unknown,
+14,punjab_n2982,punjab,AGRI_BURN,1,0.0,8216.1,0,unknown,
+15,punjab_n625,punjab,AGRI_BURN,1,0.0,5909.5,0,unknown,
+16,punjab_n109,punjab,FOREST_FIRE,1,0.0,5300.7,0,forest,
+17,punjab_n2023,punjab,FOREST_FIRE,1,0.0,5609.6,0,forest,
+18,punjab_n3069,punjab,FOREST_FIRE,1,0.0,9142.5,0,forest,
+19,punjab_c2,punjab,INDUSTRIAL,7,1.0,0.0,335,unknown,
+20,punjab_c272,punjab,INDUSTRIAL,5,0.0,926.7,175,unknown,
+21,punjab_c96,punjab,INDUSTRIAL,8,0.0,551.5,174,unknown,
+22,punjab_c347,punjab,INDUSTRIAL,3,0.0,136.2,37,unknown,
+23,punjab_n1714,punjab,UNSURE,1,1.0,2526.2,0,unknown,
+24,punjab_n1794,punjab,UNSURE,1,0.0,1107.3,0,unknown,
+25,punjab_n2670,punjab,UNSURE,1,0.0,2279.8,0,unknown,
+26,punjab_n0,punjab,UNSURE,1,0.0,4929.5,0,unknown,
+27,uttarakhand_c79,uttarakhand,AGRI_BURN,3,0.0,20646.1,0,unknown,
+28,uttarakhand_n952,uttarakhand,AGRI_BURN,1,0.0,6300.2,0,unknown,
+29,uttarakhand_n608,uttarakhand,AGRI_BURN,1,0.0,52415.1,0,unknown,
+30,uttarakhand_n785,uttarakhand,AGRI_BURN,1,0.0,47666.0,0,unknown,
+31,uttarakhand_n593,uttarakhand,FOREST_FIRE,1,1.0,17368.1,0,forest,
+32,uttarakhand_n1249,uttarakhand,FOREST_FIRE,1,0.0,11304.5,0,forest,
+33,uttarakhand_c59,uttarakhand,FOREST_FIRE,5,0.8,11007.1,2,forest,
+34,uttarakhand_n1239,uttarakhand,FOREST_FIRE,1,1.0,43616.6,0,forest,
+35,uttarakhand_c40,uttarakhand,INDUSTRIAL,3,0.0,9.6,64,unknown,
+36,uttarakhand_n88,uttarakhand,UNSURE,1,0.0,24348.8,0,unknown,
+37,uttarakhand_n140,uttarakhand,UNSURE,1,0.0,15001.6,0,unknown,
+38,uttarakhand_n145,uttarakhand,UNSURE,1,0.0,7921.7,0,unknown,
+39,uttarakhand_c36,uttarakhand,UNSURE,4,0.25,4551.2,68,unknown,
+40,punjab_n576,punjab,AGRI_BURN,1,0.0,12043.1,0,unknown,Grandfather Food Processing
+41,punjab_c417,punjab,UNSURE,3,0.3333,3330.0,1,unknown,
+42,punjab_n1644,punjab,AGRI_BURN,1,0.0,6173.5,0,unknown,
+43,uttarakhand_n78,uttarakhand,UNSURE,1,1.0,21536.1,0,unknown,
+44,uttarakhand_n1246,uttarakhand,UNSURE,1,0.0,5120.7,0,unknown,
+45,punjab_n1550,punjab,UNSURE,1,0.0,2251.2,0,unknown,
+46,punjab_n1146,punjab,AGRI_BURN,1,0.0,14802.3,0,unknown,Grandfather Food Processing
+47,uttarakhand_c86,uttarakhand,FOREST_FIRE,7,0.8571,20883.1,3,forest,Government Mini Industrial Estate Bhimtal
+48,jamnagar_n144,jamnagar,UNSURE,1,0.0,1271.1,0,unknown,Reliance Refinery
+49,uttarakhand_n248,uttarakhand,FOREST_FIRE,1,0.0,19808.5,0,forest,Government Mini Industrial Estate Bhimtal

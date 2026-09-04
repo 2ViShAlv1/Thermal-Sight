@@ -1,0 +1,14 @@
+# Dashboard theme. Colours match the class palette used on the map so the
+# whole app reads as one system.
+[theme]
+primaryColor = "#c0392b"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f4f6f8"
+textColor = "#1a1f24"
+font = "sans serif"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false

@@ -1,0 +1,195 @@
+{
+  "n_train": 16366,
+  "n_gold_test": 159,
+  "features": [
+    "n_detections",
+    "n_days",
+    "lifespan_days",
+    "activity_ratio",
+    "n_months",
+    "peak_month",
+    "gap_cv",
+    "burst_frac",
+    "max_gap_days",
+    "night_ratio",
+    "frp_mean",
+    "frp_median",
+    "frp_max",
+    "frp_std",
+    "static_ratio",
+    "dist_to_industry_m",
+    "lc_cropland",
+    "lc_forest",
+    "lc_urban",
+    "lc_other",
+    "tier_PERSISTENT",
+    "tier_EPISODIC",
+    "tier_OTHER"
+  ],
+  "evaluation": [
+    {
+      "test": "(a) random 5-fold",
+      "held_out": "-",
+      "n": 3274,
+      "macro_f1": 1.0
+    },
+    {
+      "test": "(a) random 5-fold",
+      "held_out": "-",
+      "n": 3273,
+      "macro_f1": 0.9933891627496502
+    },
+    {
+      "test": "(a) random 5-fold",
+      "held_out": "-",
+      "n": 3273,
+      "macro_f1": 0.9933891627496502
+    },
+    {
+      "test": "(a) random 5-fold",
+      "held_out": "-",
+      "n": 3273,
+      "macro_f1": 0.9936358022859677
+    },
+    {
+      "test": "(a) random 5-fold",
+      "held_out": "-",
+      "n": 3273,
+      "macro_f1": 0.9801674882489504
+    },
+    {
+      "test": "(b) region hold-out",
+      "held_out": "punjab",
+      "n": 5831,
+      "macro_f1": 0.995954549043392
+    },
+    {
+      "test": "(b) region hold-out",
+      "held_out": "korba",
+      "n": 4871,
+      "macro_f1": 0.9840490653629396
+    },
+    {
+      "test": "(b) region hold-out",
+      "held_out": "uttarakhand",
+      "n": 2905,
+      "macro_f1": 1.0
+    },
+    {
+      "test": "(b) region hold-out",
+      "held_out": "singrauli",
+      "n": 1794,
+      "macro_f1": 1.0
+    },
+    {
+      "test": "(b) region hold-out",
+      "held_out": "jamnagar",
+      "n": 965,
+      "macro_f1": 1.0
+    }
+  ],
+  "macro_f1_by_test": {
+    "(a) random 5-fold": 0.9921163232068437,
+    "(b) region hold-out": 0.9960007228812664
+  },
+  "gold": {
+    "n": 159,
+    "accuracy": 0.8867924528301887,
+    "macro_f1": 0.5892264276228419,
+    "macro_f1_known_classes": 0.7856352368304559,
+    "report": {
+      "AGRI_BURN": {
+        "precision": 0.8939393939393939,
+        "recall": 0.9915966386554622,
+        "f1-score": 0.9402390438247012,
+        "support": 119.0
+      },
+      "FOREST_FIRE": {
+        "precision": 0.9230769230769231,
+        "recall": 0.631578947368421,
+        "f1-score": 0.75,
+        "support": 19.0
+      },
+      "INDUSTRIAL": {
+        "precision": 0.7857142857142857,
+        "recall": 0.5789473684210527,
+        "f1-score": 0.6666666666666666,
+        "support": 19.0
+      },
+      "UNCLEAR": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 2.0
+      },
+      "accuracy": 0.8867924528301887,
+      "macro avg": {
+        "precision": 0.6506826506826506,
+        "recall": 0.5505307386112339,
+        "f1-score": 0.5892264276228419,
+        "support": 159.0
+      },
+      "weighted avg": {
+        "precision": 0.8732441562630241,
+        "recall": 0.8867924528301887,
+        "f1-score": 0.872988131332114,
+        "support": 159.0
+      }
+    }
+  },
+  "shap_importance": {
+    "dist_to_industry_m": 2.0641348361968994,
+    "lc_forest": 1.9937361478805542,
+    "lc_cropland": 0.8463090062141418,
+    "lifespan_days": 0.6004365682601929,
+    "n_months": 0.1789228916168213,
+    "lc_other": 0.12490452826023102,
+    "gap_cv": 0.11588822305202484,
+    "peak_month": 0.1119227483868599,
+    "frp_std": 0.10240179300308228,
+    "tier_EPISODIC": 0.09795374423265457,
+    "tier_OTHER": 0.0927828997373581,
+    "night_ratio": 0.0771246924996376,
+    "frp_mean": 0.07537085562944412,
+    "tier_PERSISTENT": 0.06307517737150192,
+    "n_days": 0.06212741509079933,
+    "n_detections": 0.05578131601214409,
+    "activity_ratio": 0.046717483550310135,
+    "max_gap_days": 0.0419609509408474,
+    "burst_frac": 0.020380927249789238,
+    "frp_median": 0.016612492501735687,
+    "frp_max": 0.012921196408569813,
+    "lc_urban": 0.008121647872030735,
+    "static_ratio": 2.754788874881342e-05
+  },
+  "ablation": [
+    {
+      "features": "sab features",
+      "n_features": 23,
+      "region_f1": 0.996669306120672,
+      "gold_accuracy": 0.8867924528301887,
+      "gold_macro_f1": 0.5892264276228419
+    },
+    {
+      "features": "bina lc_class",
+      "n_features": 19,
+      "region_f1": 0.6652630955417961,
+      "gold_accuracy": 0.7044025157232704,
+      "gold_macro_f1": 0.4647983262784021
+    },
+    {
+      "features": "bina lc + dist",
+      "n_features": 18,
+      "region_f1": 0.4455390709161643,
+      "gold_accuracy": 0.5031446540880503,
+      "gold_macro_f1": 0.33709757579104316
+    },
+    {
+      "features": "sirf FIRMS (koi naksha nahi)",
+      "n_features": 15,
+      "region_f1": 0.4465482471153693,
+      "gold_accuracy": 0.5094339622641509,
+      "gold_macro_f1": 0.3362384741695087
+    }
+  ]
+}
