@@ -1,36 +1,36 @@
-# Poora Workflow — Presentation ke liye
+# Full Workflow — For the Presentation
 
-Ek line mein project: satellite se aane wale **lakhon garam points** (fire
-detections) ko chhaan kar bata dena ki wo **factory ka flare hai, jungle ki
-aag hai, ya khet mein parali jalayi ja rahi hai** — bina kisi insaan ke
-manually dekhe.
+The project in one line: filter the **millions of hot points** (fire
+detections) coming from satellites and say whether each one is **a
+factory's flare, a forest fire, or crop residue being burned in a
+field** — without any human manually looking at it.
 
 ---
 
-## 1. Poora Pipeline — Diagram
+## 1. Full Pipeline — Diagram
 
 ```mermaid
 flowchart TD
-    A["STEP 1 — FIRMS Download\nNASA satellite se garam points\n(3 satellites, kai mahine ka data)"] --> B
+    A["STEP 1 — FIRMS Download\nHot points from NASA satellites\n(3 satellites, several months of data)"] --> B
 
-    B["STEP 2 — Context Nikalna\nOpenStreetMap se: factory kahan hai?\njungle/khet/shehar kahan hai?"] --> B2
-    B2["STEP 2b — Power Plants\nWRI ka verified database jodo\n(coal/gas alag, solar/wind alag)"] --> B3
-    B3["STEP 2 dobara — Distance\nnaye plants ke saath fir se naapo"] --> C
-    C["STEP 2c — Landcover\nESA WorldCover satellite tasveer\n(OSM adhoora tha, ye poora hai)"] --> D
+    B["STEP 2 — Extract Context\nFrom OpenStreetMap: where's the factory?\nwhere's the forest/farmland/city?"] --> B2
+    B2["STEP 2b — Power Plants\nAdd WRI's verified database\n(coal/gas separated from solar/wind)"] --> B3
+    B3["STEP 2 again — Distance\nremeasure with the new plants included"] --> C
+    C["STEP 2c — Landcover\nESA WorldCover satellite imagery\n(OSM was incomplete, this fills it in)"] --> D
 
-    D["STEP 3 — Persistence\n(PROJECT KA DIL)\nEk hi jagah baar-baar dikhne wale\npoints ko jodkar EK 'source' banao"] --> E
+    D["STEP 3 — Persistence\n(THE HEART OF THE PROJECT)\nMerge points that repeatedly show up\nat the same place into ONE 'source'"] --> E
 
-    E["STEP 4 — Rule-Based Labels\nSeedhi shartein:\nfactory ke paas + baar-baar = INDUSTRIAL\njungle pe + door + kai din = FOREST_FIRE\nkhet pe + 1-2 din = AGRI_BURN"] --> F
+    E["STEP 4 — Rule-Based Labels\nSimple conditions:\nnear a factory + repeats = INDUSTRIAL\non forest + far + many days = FOREST_FIRE\non farmland + 1-2 days = AGRI_BURN"] --> F
 
-    F["STEP 4d/4e — AI Photo Check (optional)\nJahan rules confuse hain,\nsatellite photo AI (Gemini) ko dikhao"] --> G
+    F["STEP 4d/4e — AI Photo Check (optional)\nWhere rules are confused,\nshow the satellite photo to AI (Gemini)"] --> G
 
-    G["GOLD LABELS\nInsaan khud 159 sources\nsatellite photo dekh kar\nhaath se label karta hai\n(Streamlit app)"] --> H
+    G["GOLD LABELS\nA human hand-labels 159 sources\nby looking at the satellite photo\n(Streamlit app)"] --> H
 
-    H["STEP 5 — Model Training\nXGBoost model train hota hai\nGold labels training se ALAG rakhe\n(taaki test imaandar rahe)"] --> I
+    H["STEP 5 — Model Training\nAn XGBoost model is trained\nGold labels kept SEPARATE from training\n(so the test stays honest)"] --> I
 
-    I["EVALUATION — 3 tarah se\n(a) random split — aasan\n(b) region hold-out — kada\n(c) GOLD LABELS — sabse imaandar"] --> J
+    I["EVALUATION — 3 ways\n(a) random split — easy\n(b) region hold-out — harder\n(c) GOLD LABELS — most honest"] --> J
 
-    J["Dashboard\nstreamlit run app.py\nMap + charts + har source ka\nconfidence score"]
+    J["Dashboard\nstreamlit run app.py\nMap + charts + a confidence\nscore for every source"]
 
     style D fill:#ffd54f,stroke:#333,stroke-width:2px
     style G fill:#81c784,stroke:#333,stroke-width:2px
@@ -39,78 +39,81 @@ flowchart TD
 
 ---
 
-## 2. Har Step Kya Karta Hai (Hinglish)
+## 2. What Each Step Does
 
 ### STEP 1 — Data Download
-NASA FIRMS se satellite hotspots download karte hain — jahan bhi kahin garmi
-(fire radiative power) detect hui, wo point mil jata hai. Ye raw data hai,
-abhi kuch pata nahi kis cheez ki garmi hai.
+Download satellite hotspots from NASA FIRMS — wherever heat (fire
+radiative power) was detected, that point is captured. This is raw
+data; at this stage nothing is known about what's actually producing
+the heat.
 
-### STEP 2 — Context (aas-paas kya hai?)
-Har hotspot ke aas-paas OpenStreetMap se pata karte hain: factory hai kya?
-Jungle hai kya? Khet hai kya? Distance bhi naapte hain — sabse paas ki
-factory kitni door hai.
+### STEP 2 — Context (what's nearby?)
+For each hotspot, check OpenStreetMap for what's around it: is there a
+factory? Forest? Farmland? Distance is measured too — how far is the
+nearest factory.
 
-### STEP 2b — Asli Power Plants
-OSM adhoora hota hai. WRI (World Resources Institute) ka verified database
-jodte hain — 1,589 Indian power plants, aur ye bhi pata hai ki **kaunsa
-coal/gas hai aur kaunsa solar/wind** (solar-wind garmi nahi dete, unhe
-"factory" maanna galat hoga).
+### STEP 2b — Real Power Plants
+OSM is incomplete. WRI's (World Resources Institute) verified database
+is added — 1,589 Indian power plants, and it also tells us **which are
+coal/gas and which are solar/wind** (solar/wind don't produce heat, so
+calling them a "factory" would be wrong).
 
-### STEP 2c — Asli Landcover
-OSM pe log sadkein map karte hain, khet-jungle nahi — isliye 82% sources ka
-land-type "unknown" tha. ESA WorldCover (satellite se bani tasveer, poori
-duniya, har 10x10 metre) se ye gap bhara.
+### STEP 2c — Real Landcover
+People on OSM map roads, not fields and forests — so 82% of sources
+had land-type "unknown". ESA WorldCover (a satellite-built map, global,
+every 10×10 metres) fills that gap.
 
-### STEP 3 — Persistence (PROJECT KA DIL)
-Ek refinery ka flare 198 baar detect ho sakta hai — wo 198 alag ghatnayein
-nahi hain, EK cheez hai jo baar-baar dikhi. Ye step un sab ko jod kar EK
-"source" banata hai, aur batata hai: kitne din tak dikha, kitna regular tha,
-raat ko dikha ya din mein.
+### STEP 3 — Persistence (THE HEART OF THE PROJECT)
+A single refinery flare might be detected 198 times — that isn't 198
+separate events, it's ONE thing that kept showing up. This step merges
+all of those into ONE "source" and reports: how many days it showed
+up, how regular it was, whether it appeared at night or during the
+day.
 
 ### STEP 4 — Rule-Based Labelling
-Seedhi shartein (koi AI nahi, saaf formula):
-- **INDUSTRIAL** — factory ke 1 km andar + ek baar ki ghatna nahi (baar-baar)
-- **FOREST_FIRE** — jungle pe + factory se door + kai din chala
-- **AGRI_BURN** — khet pe + 1-2 din + din ka waqt
-- **UNSURE** — jahan pakka nahi keh sakte
+Simple conditions (no AI, a clear formula):
+- **INDUSTRIAL** — within 1 km of a factory + not a one-off (repeats)
+- **FOREST_FIRE** — on forest + far from a factory + ran for several days
+- **AGRI_BURN** — on farmland + 1-2 days + daytime
+- **UNSURE** — where nothing can be said with confidence
 
 ### STEP 4d/4e — AI Photo Check (optional)
-Jahan rules bhi confuse hain, wahan Gemini AI ko satellite photo dikhate hain
-aur uska jawab bhi label mein jodte hain.
+Where the rules are also confused, the satellite photo is shown to
+Gemini AI and its answer is merged into the labels too.
 
-### GOLD LABELS — Insaan ka Kaam
-Yahi sabse zaroori step hai. **159 sources** khud satellite photo dekh kar,
-Google Maps se cross-check karke, haath se label kiye — kyunki baaki saare
-labels "rules" ne banaye hain, aur agar model ko unhi pe test karein to wo
-sirf "maine apne hi rules ratt liye" wala jhootha score hoga. Gold labels
-model ne KABHI nahi dekhe — isliye inpe mila score hi sacha hai.
+### GOLD LABELS — The Human's Job
+This is the single most important step. **159 sources** were
+hand-labelled by looking at the satellite photo and cross-checking
+against Google Maps — because every other label was produced by
+"rules", and testing the model only against those would just be a
+false score of "it memorized its own rules". The model has NEVER seen
+the gold labels — so the score on them is the real one.
 
 ### STEP 5 — Model Training
-XGBoost model train hota hai rule-labelled data pe. Gold labels training se
-**pura alag** rakhe jaate hain (leakage se bachne ke liye) — taaki test
-imaandar rahe.
+An XGBoost model is trained on the rule-labelled data. Gold labels are
+kept **completely separate** from training (to avoid leakage) — so the
+test stays honest.
 
-### Evaluation — 3 Tarah Se, Har Agla Kada
-| Test | Kya karta hai | Score (macro-F1) |
+### Evaluation — 3 Ways, Each Stricter
+| Test | What it does | Score (macro-F1) |
 |---|---|---|
-| (a) Random 5-fold | Rows randomly baant do — sabse aasan | 0.962 |
-| (b) Region hold-out | Poora ilaaka hataao — naya region test | 0.954 |
-| (c) **Gold labels** | Insaan ke 159 labels — **sabse imaandar** | **0.76*** |
+| (a) Random 5-fold | Split rows randomly — the easiest | 0.962 |
+| (b) Region hold-out | Remove an entire region — test on a new one | 0.954 |
+| (c) **Gold labels** | 159 human labels — **most honest** | **0.76*** |
 
-*\*sirf 3 asli classes (INDUSTRIAL/FOREST_FIRE/AGRI_BURN) pe; UNCLEAR
-samet 0.57 (UNCLEAR model ki class hi nahi hai, isliye wo number
-zyada conservative hai).*
+*\*on the 3 real classes only (INDUSTRIAL/FOREST_FIRE/AGRI_BURN); with
+UNCLEAR included it's 0.57 (UNCLEAR isn't even one of the model's
+classes, so that number is extra conservative).*
 
 **Final Gold Accuracy: 87.4%**
 
 ### Dashboard
-`streamlit run app.py` — map pe sab sources, unka confidence score,
-FRP chart, aur kaunsa INDUSTRIAL hai jisko manually inspect karna chahiye.
+`streamlit run app.py` — a map of all sources, their confidence score,
+an FRP chart, and which INDUSTRIAL sites should be manually inspected.
 
 ---
 
-## 3. Numbers — Ek Nazar Mein
+## 3. Numbers — At a Glance
 
 ```
 88,434  raw FIRMS detections
@@ -121,17 +124,17 @@ FRP chart, aur kaunsa INDUSTRIAL hai jisko manually inspect karna chahiye.
  5,162  FOREST_FIRE
    340  INDUSTRIAL
 
-99.78% reduction — raw satellite noise se actionable sources tak
+99.78% reduction — from raw satellite noise to actionable sources
 ```
 
-**Model Performance (159 gold labels pe):**
+**Model Performance (on 159 gold labels):**
 - Accuracy: **87.4%**
 - Macro-F1 (3 classes): **0.76**
 - AGRI_BURN: precision 0.87, recall 0.99
 - FOREST_FIRE: precision 0.92, recall 0.63
 - INDUSTRIAL: precision 0.82, recall 0.47
 
-**Honesty check (Ablation):** Rule-based features (land-cover, factory
-distance) hata kar dekha — score 0.952 se 0.357 girta hai, isse proof
-milta hai ki model sirf rules ki nakal nahi kar raha balki genuinely
-kuch seekh bhi raha hai.
+**Honesty check (Ablation):** removing the rule-based features
+(land-cover, factory distance) drops the score from 0.952 to 0.357 —
+proof that the model isn't just copying the rules but is genuinely
+learning something of its own.

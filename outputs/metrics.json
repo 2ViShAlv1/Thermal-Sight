@@ -1,5 +1,5 @@
 {
-  "n_train": 16366,
+  "n_train": 17234,
   "n_gold_test": 159,
   "features": [
     "n_detections",
@@ -30,90 +30,90 @@
     {
       "test": "(a) random 5-fold",
       "held_out": "-",
-      "n": 3274,
-      "macro_f1": 1.0
+      "n": 3447,
+      "macro_f1": 0.9244552266307658
     },
     {
       "test": "(a) random 5-fold",
       "held_out": "-",
-      "n": 3273,
-      "macro_f1": 0.9933891627496502
+      "n": 3447,
+      "macro_f1": 0.8941258671471143
     },
     {
       "test": "(a) random 5-fold",
       "held_out": "-",
-      "n": 3273,
-      "macro_f1": 0.9933891627496502
+      "n": 3447,
+      "macro_f1": 0.9420671998375597
     },
     {
       "test": "(a) random 5-fold",
       "held_out": "-",
-      "n": 3273,
-      "macro_f1": 0.9936358022859677
+      "n": 3447,
+      "macro_f1": 0.9220519295553933
     },
     {
       "test": "(a) random 5-fold",
       "held_out": "-",
-      "n": 3273,
-      "macro_f1": 0.9801674882489504
+      "n": 3446,
+      "macro_f1": 0.9028572805025359
     },
     {
       "test": "(b) region hold-out",
       "held_out": "punjab",
-      "n": 5831,
-      "macro_f1": 0.995954549043392
+      "n": 6204,
+      "macro_f1": 0.858926412024501
     },
     {
       "test": "(b) region hold-out",
       "held_out": "korba",
-      "n": 4871,
-      "macro_f1": 0.9840490653629396
+      "n": 5251,
+      "macro_f1": 0.9020537993395555
     },
     {
       "test": "(b) region hold-out",
       "held_out": "uttarakhand",
-      "n": 2905,
-      "macro_f1": 1.0
+      "n": 2906,
+      "macro_f1": 0.999702113654869
     },
     {
       "test": "(b) region hold-out",
       "held_out": "singrauli",
-      "n": 1794,
+      "n": 1795,
       "macro_f1": 1.0
     },
     {
       "test": "(b) region hold-out",
       "held_out": "jamnagar",
-      "n": 965,
-      "macro_f1": 1.0
+      "n": 1078,
+      "macro_f1": 0.8071531055119682
     }
   ],
   "macro_f1_by_test": {
-    "(a) random 5-fold": 0.9921163232068437,
-    "(b) region hold-out": 0.9960007228812664
+    "(a) random 5-fold": 0.9171115007346738,
+    "(b) region hold-out": 0.9135670861061789
   },
   "gold": {
     "n": 159,
-    "accuracy": 0.8867924528301887,
-    "macro_f1": 0.5892264276228419,
-    "macro_f1_known_classes": 0.7856352368304559,
+    "accuracy": 0.8679245283018868,
+    "macro_f1": 0.5516111956593661,
+    "macro_f1_known_classes": 0.7354815942124882,
     "report": {
       "AGRI_BURN": {
-        "precision": 0.8939393939393939,
+        "precision": 0.8740740740740741,
         "recall": 0.9915966386554622,
-        "f1-score": 0.9402390438247012,
+        "f1-score": 0.9291338582677166,
         "support": 119.0
       },
       "FOREST_FIRE": {
-        "precision": 0.9230769230769231,
+        "precision": 0.8,
         "recall": 0.631578947368421,
-        "f1-score": 0.75,
+        "f1-score": 0.7058823529411765,
         "support": 19.0
       },
       "INDUSTRIAL": {
-        "precision": 0.7857142857142857,
-        "recall": 0.5789473684210527,
-        "f1-score": 0.6666666666666666,
+        "precision": 0.8888888888888888,
+        "recall": 0.42105263157894735,
+        "f1-score": 0.5714285714285714,
         "support": 19.0
       },
       "UNCLEAR": {
@@ -122,74 +122,74 @@
         "f1-score": 0.0,
         "support": 2.0
       },
-      "accuracy": 0.8867924528301887,
+      "accuracy": 0.8679245283018868,
       "macro avg": {
-        "precision": 0.6506826506826506,
-        "recall": 0.5505307386112339,
-        "f1-score": 0.5892264276228419,
+        "precision": 0.6407407407407407,
+        "recall": 0.5110570544007076,
+        "f1-score": 0.5516111956593661,
         "support": 159.0
       },
       "weighted avg": {
-        "precision": 0.8732441562630241,
-        "recall": 0.8867924528301887,
-        "f1-score": 0.872988131332114,
+        "precision": 0.8559981365012813,
+        "recall": 0.8679245283018868,
+        "f1-score": 0.8480241301690784,
         "support": 159.0
       }
     }
   },
   "shap_importance": {
-    "dist_to_industry_m": 2.0641348361968994,
-    "lc_forest": 1.9937361478805542,
-    "lc_cropland": 0.8463090062141418,
-    "lifespan_days": 0.6004365682601929,
-    "n_months": 0.1789228916168213,
-    "lc_other": 0.12490452826023102,
-    "gap_cv": 0.11588822305202484,
-    "peak_month": 0.1119227483868599,
-    "frp_std": 0.10240179300308228,
-    "tier_EPISODIC": 0.09795374423265457,
-    "tier_OTHER": 0.0927828997373581,
-    "night_ratio": 0.0771246924996376,
-    "frp_mean": 0.07537085562944412,
-    "tier_PERSISTENT": 0.06307517737150192,
-    "n_days": 0.06212741509079933,
-    "n_detections": 0.05578131601214409,
-    "activity_ratio": 0.046717483550310135,
-    "max_gap_days": 0.0419609509408474,
-    "burst_frac": 0.020380927249789238,
-    "frp_median": 0.016612492501735687,
-    "frp_max": 0.012921196408569813,
-    "lc_urban": 0.008121647872030735,
-    "static_ratio": 2.754788874881342e-05
+    "dist_to_industry_m": 2.5998518466949463,
+    "lc_forest": 1.715847134590149,
+    "lc_cropland": 0.8008837699890137,
+    "frp_max": 0.5465392470359802,
+    "frp_mean": 0.5008620023727417,
+    "peak_month": 0.4428853690624237,
+    "frp_median": 0.3543798327445984,
+    "night_ratio": 0.24773044884204865,
+    "lifespan_days": 0.22626502811908722,
+    "n_detections": 0.14881670475006104,
+    "lc_other": 0.13950558006763458,
+    "frp_std": 0.1020861342549324,
+    "lc_urban": 0.09315534681081772,
+    "gap_cv": 0.07077141851186752,
+    "static_ratio": 0.06656632572412491,
+    "tier_EPISODIC": 0.04995374381542206,
+    "max_gap_days": 0.04954281449317932,
+    "burst_frac": 0.044264066964387894,
+    "n_days": 0.031665317714214325,
+    "activity_ratio": 0.028398940339684486,
+    "n_months": 0.02379300259053707,
+    "tier_OTHER": 0.017750490456819534,
+    "tier_PERSISTENT": 0.0013254591031000018
   },
   "ablation": [
     {
       "features": "sab features",
       "n_features": 23,
-      "region_f1": 0.996669306120672,
-      "gold_accuracy": 0.8867924528301887,
-      "gold_macro_f1": 0.5892264276228419
+      "region_f1": 0.9093384294760073,
+      "gold_accuracy": 0.8679245283018868,
+      "gold_macro_f1": 0.5516111956593661
     },
     {
       "features": "bina lc_class",
       "n_features": 19,
-      "region_f1": 0.6652630955417961,
-      "gold_accuracy": 0.7044025157232704,
-      "gold_macro_f1": 0.4647983262784021
+      "region_f1": 0.5260729124927905,
+      "gold_accuracy": 0.6540880503144654,
+      "gold_macro_f1": 0.4146663940571117
     },
     {
       "features": "bina lc + dist",
       "n_features": 18,
-      "region_f1": 0.4455390709161643,
-      "gold_accuracy": 0.5031446540880503,
-      "gold_macro_f1": 0.33709757579104316
+      "region_f1": 0.33597480945289165,
+      "gold_accuracy": 0.48427672955974843,
+      "gold_macro_f1": 0.33136859405348873
     },
     {
       "features": "sirf FIRMS (koi naksha nahi)",
       "n_features": 15,
-      "region_f1": 0.4465482471153693,
-      "gold_accuracy": 0.5094339622641509,
-      "gold_macro_f1": 0.3362384741695087
+      "region_f1": 0.33662284566657835,
+      "gold_accuracy": 0.49056603773584906,
+      "gold_macro_f1": 0.31648472246288917
     }
   ]
 }

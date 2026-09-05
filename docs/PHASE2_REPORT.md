@@ -1,382 +1,406 @@
-# Phase 2 — Baar-baar dikhne wali cheezein dhoondhna
+# Phase 2 — Finding things that show up again and again
 
-**Status: ✅ ho gaya** | Ye project ka **sabse important hissa** hai
-
----
-
-## 1. Ek kahani se shuru karte hain
-
-Socho tum apne ghar ki chhat pe khade ho aur raat ko shehar dekh rahe ho.
-Tumhe do tarah ki roshni dikhti hai:
-
-**Ek — street light.** Wo roz raat ko jalti hai. Kal bhi jalegi, parso bhi.
-Chhoti si roshni, par **hamesha wahi jagah**.
-
-**Doosri — koi patakha.** Ek baar phata, tez roshni hui, aur khatam. Kal
-wahan kuch nahi hoga.
-
-Ab agar koi tumse pooche *"in dono mein farak kaise batao?"* — to **ek raat
-dekh kar nahi bata sakte.** Dono roshni hi to hain.
-
-Par agar tum **poore saal** roz dekho, to farak saaf ho jayega:
-street light **roz** dikhegi, patakha **ek baar**.
-
-**Bas yahi Phase 2 karta hai.**
-
-- **Factory ka flare** = street light. Roz jalta hai, wahi jagah
-- **Jungle/khet ki aag** = patakha. Ek baar, phir khatam
+**Status: ✅ done** | This is the **most important part** of the project
 
 ---
 
-## 2. Ek badi galti jo hum ab tak kar rahe the
+## 1. Let's start with a story
 
-Ab tak hum har detection ko **alag cheez** maan rahe the.
+Imagine you're standing on your roof at night looking at the city.
+You see two kinds of light:
 
-Socho tum roz subah apne mohalle ki chai ki dukaan ki photo khinchte ho.
-Saal bhar mein 198 photos ho gayin.
+**One — a street light.** It's on every night. It'll be on tomorrow,
+and the day after. A small light, but **always the same spot**.
 
-Ab koi aaye aur kahe *"tumhare mohalle mein 198 chai ki dukaanein hain!"* —
-galat na? **Dukaan ek hi hai. Photo 198 hain.**
+**The other — a firecracker.** It bursts once, a bright flash, and
+that's it. Tomorrow there'll be nothing there.
 
-Hamare data mein bilkul yahi ho raha tha. Reliance ka **ek** flare **198 baar**
-detect hua. Wo 198 alag cheezein nahi — **ek cheez jo 198 baar dikhi.**
+Now if someone asked you *"how do you tell these two apart?"* — you
+**can't tell from one night alone.** Both are just light.
 
-**Phase 2 ka pehla kaam:** un 198 rows ko jodkar **ek** "source" banana.
+But if you watch **the whole year**, the difference becomes obvious:
+the street light shows up **every day**, the firecracker **once**.
+
+**That's exactly what Phase 2 does.**
+
+- **A factory's flare** = a street light. Burns every day, same spot
+- **A forest or field fire** = a firecracker. Once, then gone
 
 ---
 
-## 3. Phase 2 do kaam karta hai
+## 2. A big mistake we'd been making up to now
+
+Until now we were treating every detection as a **separate thing**.
+
+Imagine you photograph your neighborhood's tea stall every morning.
+Over a year, that's 198 photos.
+
+Now if someone came along and said *"your neighborhood has 198 tea
+stalls!"* — that would be wrong, right? **There's one stall. There are
+198 photos.**
+
+That's exactly what was happening in our data. Reliance's **one**
+flare was detected **198 times**. Those aren't 198 separate things —
+**one thing that showed up 198 times.**
+
+**Phase 2's first job:** merge those 198 rows into **one** "source".
+
+---
+
+## 3. Phase 2 does two jobs
 
 ```
-Phase 1 ki teen files (jo ek doosre ko jaanti hi nahi thi)
+Phase 1's three files (which had no idea about each other)
         |
-        |  KAAM 1: "har garam point ke aas-paas kya hai?"
-        |          (factory paas hai? jungle pe hai? khet pe hai?)
+        |  JOB 1: "what's around each hot point?"
+        |          (is a factory nearby? is it on forest? on farmland?)
         v
-   features.gpkg  -  8,415 points, ab har ek ko apna aas-paas pata hai
+   features.gpkg  -  8,415 points, each now knows what's around it
         |
-        |  KAAM 2: "kaunse points asal mein EK hi cheez hain?"
+        |  JOB 2: "which points are actually THE SAME thing?"
         v
    sources.gpkg   -  6,010 sources
 ```
 
 ---
 
-## 4. ⭐ Result — aur ye dekh kar tum khush ho jaoge
+## 4. ⭐ Result — this one will make you happy
 
 ```
-8,415 detections  ->  6,010 sources  ->  5 aise jo saal bhar chalte rahe
+8,415 detections  ->  6,010 sources  ->  5 that kept running all year
 ```
 
-Wo 5 kaun nikle:
+Here's who those 5 turned out to be:
 
-| Naam | kitni baar dikha | kitne alag din | kitne din tak | raat ko? | factory se doori |
+| Name | times seen | distinct days | over how many days | at night? | distance from factory |
 |---|---|---|---|---|---|
-| **Reliance Refinery** | 101 | 91 | 361 din | **100%** | **0 m** |
-| **Reliance Refinery** | 63 | 57 | 361 din | **100%** | **0 m** |
-| **SHREE DIGVIJAY CEMENT** | 52 | 50 | 358 din | **100%** | **0 m** |
-| **Vadinar Refinery** | 31 | 29 | 360 din | **100%** | **0 m** |
-| **Reliance Refinery** | 16 | 12 | 337 din | **100%** | **0 m** |
+| **Reliance Refinery** | 101 | 91 | 361 days | **100%** | **0 m** |
+| **Reliance Refinery** | 63 | 57 | 361 days | **100%** | **0 m** |
+| **SHREE DIGVIJAY CEMENT** | 52 | 50 | 358 days | **100%** | **0 m** |
+| **Vadinar Refinery** | 31 | 29 | 360 days | **100%** | **0 m** |
+| **Reliance Refinery** | 16 | 12 | 337 days | **100%** | **0 m** |
 
-Isko aise padho:
+Read it like this:
 
-> *"Reliance Refinery ki jagah pe garmi **101 baar** mili, **91 alag dinon**
-> mein, **361 din** ke andar. Aur **har baar raat ko**. Aur wo jagah factory
-> ki chaardiwari ke **andar** hai (0 metre)."*
+> *"Heat was detected at the Reliance Refinery site **101 times**, on
+> **91 distinct days**, within a span of **361 days**. And **every
+> single time, at night**. And the location is **inside** the
+> factory's boundary (0 metres)."*
 
-**Paanch ke paanch asli factory ke naam.** Ek bhi galat nahi.
+**All five are real factory names.** Not one is wrong.
 
-Aur **Uttarakhand aur Punjab mein ek bhi nahi** — kyunki wahan jungle aur khet
-ki aag hai, factory nahi. **Bilkul jaisa hona chahiye tha.**
+And **not a single one in Uttarakhand or Punjab** — because those have
+forest and field fires, not factories. **Exactly how it should be.**
 
-**→ Iska screenshot lo. Ye tumhari PPT ki sabse badi slide hai.**
-
----
-
-## 5. Judges ye 3 sawaal poochenge — jawab yaad kar lo
-
-### Sawaal 1: "DBSCAN kya hai?"
-
-Socho ek mela laga hai. Tum upar se photo lo. Kuch log **jhund banakar** khade
-hain, kuch **akele** ghoom rahe hain.
-
-DBSCAN wahi kaam karta hai — **paas-paas wale points ko ek jhund maan leta hai.**
-
-Do settings hain:
-
-- **`eps = 500 metre`** — "kitne paas khade ho to ek jhund maanein?"
-  Humne 500 m rakha, kyunki satellite ka ek pixel hi 375 m ka hota hai
-- **`min_samples = 3`** — "kam se kam kitne log ho to jhund kahein?"
-  Humne 3 rakha
-
-Jo point kisi jhund mein na aaye, use DBSCAN **"noise"** kehta hai.
-
-**Ye kaam kyun karta hai:** factory ka flare **hamesha wahi ek jagah** jalta
-hai — to uske saare detections ek tight jhund ban jaate hain. Jungle ki aag
-**ghoomti** hai — wo bikhri rehti hai.
-
-### Sawaal 2: "CRS ka kya chakkar hai?"
-
-Socho tum kapda naap rahe ho. Do tarike hain:
-
-- **Rubber band se** — ye khinchta rehta hai, har baar alag naap deta hai
-- **Steel ke scale se** — hamesha sahi naap
-
-Map ke saath bhi yahi hai:
-
-- **EPSG:4326 (degrees)** = rubber band. "1 degree" Delhi mein alag doori hai,
-  Kanyakumari mein alag
-- **EPSG:32643 (metres)** = steel scale. 500 ka matlab hamesha 500 metre
-
-**Isliye doori naapne se pehle hamesha `to_crs(32643)` karna padta hai.**
-Warna `eps=500` ka matlab "500 degree" ho jata — jo poori duniya se bhi bada hai!
-
-*Humne check kiya:* teeno regions ke numbers **alag** aaye (1,703 / 18,048 /
-5,639 metre). Agar teeno ek jaise aate, to samajh jaate ki CRS ki galti hai.
-
-### Sawaal 3: "60% points 'noise' the, unka kya kiya?"
-
-**Rakha. Phenka nahi.** Aur ye soch-samajh kar kiya.
-
-Socho Punjab mein ek kisan apne khet mein **ek baar** aag lagata hai. Uske
-aas-paas koi doosri aag nahi. To DBSCAN kahega "ye akela hai, ye noise hai."
-
-Par socho — **wo aag asli thi na?** Wo ek sachi AGRI_BURN ghatna hai!
-
-Agar hum use phenk dete, to model ke paas **khet ki aag seekhne ke liye kuch
-bachta hi nahi** — aur wo hamare data ka **61%** hai.
-
-**To humne kya kiya:** har akele point ko *"ek baar dikha source"* maan liya.
-Uska "kitne din tak dikha" = 0, yani wo **apne aap EPISODIC** ban gaya.
-Bilkul sahi.
+**→ Take a screenshot of this. This is the biggest slide in your PPT.**
 
 ---
 
-## 6. 🔴 Sabse badi baat — plan ka ek rule galat nikla
+## 5. Judges will ask these 3 questions — memorize the answers
 
-**Ye finale mein tumhara sabse achha jawab hoga. Dhyan se padho.**
+### Question 1: "What is DBSCAN?"
 
-### Kya hua tha
+Imagine a fair is going on. You take a photo from above. Some people
+are standing **in groups**, some are wandering **alone**.
 
-Plan mein likha tha: *"jo source 150 din se zyada dikhe **aur** `activity_ratio`
-0.25 se upar ho, wo PERSISTENT hai."*
+DBSCAN does exactly that job — **it treats points that are close
+together as one group.**
 
-Chalaya, to sirf **1** source mila. Kuch to gadbad thi.
+There are two settings:
 
-### Dekha to ye mila
+- **`eps = 500 metres`** — "how close together counts as one group?"
+  We used 500 m, because a single satellite pixel is already 375 m
+- **`min_samples = 3`** — "how many people minimum to call it a group?"
+  We used 3
 
-| Naam | raat ko? | factory se doori | activity_ratio | pass hua? |
+Any point that doesn't belong to a group, DBSCAN calls **"noise"**.
+
+**Why this works:** a factory's flare **always burns at the same
+spot** — so all its detections form one tight group. A forest fire
+**moves** — it stays scattered.
+
+### Question 2: "What's this CRS business about?"
+
+Imagine you're measuring cloth. There are two ways:
+
+- **With a rubber band** — it stretches, gives a different measurement
+  every time
+- **With a steel ruler** — always the correct measurement
+
+It's the same with maps:
+
+- **EPSG:4326 (degrees)** = the rubber band. "1 degree" is a different
+  distance in Delhi than in Kanyakumari
+- **EPSG:32643 (metres)** = the steel ruler. 500 always means 500
+  metres
+
+**That's why distance always has to be measured after `to_crs(32643)`.**
+Otherwise `eps=500` would mean "500 degrees" — bigger than the whole
+Earth!
+
+*We checked:* the numbers came out **different** across the three
+regions (1,703 / 18,048 / 5,639 metres). If all three had come out the
+same, that would have told us the CRS was wrong.
+
+### Question 3: "60% of points were 'noise' — what did you do with them?"
+
+**Kept them. Didn't throw them away.** And this was a deliberate
+choice.
+
+Imagine a farmer in Punjab burns his field **once**. No other fire
+nearby. So DBSCAN says "this one's alone, this is noise."
+
+But think about it — **was that fire real?** It's a genuine AGRI_BURN
+event!
+
+If we'd thrown it away, the model would have **nothing left to learn
+crop-burning from** — and that's **61%** of our data.
+
+**So here's what we did:** every lone point was treated as *"a source
+that showed up once."* Its "how many days it showed up" = 0, which
+**automatically makes it EPISODIC.** Exactly right.
+
+---
+
+## 6. 🔴 The biggest thing — one rule from the plan turned out to be wrong
+
+**This will be your best answer in the finals. Read it carefully.**
+
+### What happened
+
+The plan said: *"a source seen over more than 150 days **and** with
+`activity_ratio` above 0.25 is PERSISTENT."*
+
+Ran it, and got only **1** source. Something was off.
+
+### What we found on closer look
+
+| Name | at night? | distance from factory | activity_ratio | passed? |
 |---|---|---|---|---|
-| Reliance Refinery | 100% | 0 m | 0.25 | ✓ bilkul kagaar pe |
+| Reliance Refinery | 100% | 0 m | 0.25 | ✓ right at the edge |
 | Reliance Refinery | 100% | 0 m | 0.16 | ✗ |
 | SHREE DIGVIJAY CEMENT | 100% | 0 m | 0.14 | ✗ |
 | **Vadinar Refinery** | **100%** | **0 m** | **0.08** | **✗** |
 
-Dekho — **Vadinar Refinery** hai! Wo **100% raat** ko jalti hai, factory ke
-**andar** hai, **saal bhar** dikhi. Isse zyada "factory" kya hoga?
+Look — **Vadinar Refinery**! It burns **100% at night**, is **inside**
+the factory, and showed up **all year round**. What could be more
+"factory" than that?
 
-Phir bhi **fail** ho gayi. To rule mein hi kuch galat tha.
+And yet it **failed**. So something was wrong with the rule itself.
 
-### Asli wajah — ek school wali kahani se samjho
+### The real reason — understood through a school story
 
-`activity_ratio` ka matlab hai: *"jitne din ke andar dikha, unme se kitne din
-dikha?"*
+`activity_ratio` means: *"of all the days it could have shown up, on
+how many days did it actually show up?"*
 
-Ab socho — **ek teacher ye check karna chahta hai ki Raju roz school aata hai
-ya nahi.** Par teacher khud **sirf kabhi-kabhi** aata hai — wo bhi tab jab
-baarish na ho.
+Now imagine — **a teacher wants to check whether Raju comes to school
+every day.** But the teacher himself only shows up **occasionally** —
+and only when it isn't raining.
 
-Saal bhar mein teacher 100 baar aaya, aur Raju 25 baar mila.
+Over the year the teacher came 100 times, and saw Raju 25 of those
+times.
 
-Kya teacher ye keh sakta hai *"Raju sirf 25% din aata hai"*? **Nahi!**
-Kyunki teacher ne baaki din **check hi nahi kiya**.
+Can the teacher say *"Raju only shows up 25% of the time"*? **No!**
+Because the teacher **never even checked** the other days.
 
-**Satellite ke saath bilkul yahi ho raha tha.**
+**Exactly the same thing was happening with the satellite.**
 
-Do saboot nikale:
+Two pieces of evidence:
 
-**Saboot 1:** Poore Jamnagar ilaake mein, saal ke **365 din** mein se sirf
-**217 din** koi bhi detection aayi. Baaki din **badal** the, ya satellite ka
-angle theek nahi tha. Yani satellite roz dekh hi nahi paya.
+**Evidence 1:** across the whole Jamnagar area, out of the year's
+**365 days**, a detection of any kind arrived on only **217 days**. On
+the rest, it was **cloudy**, or the satellite's viewing angle was
+wrong. In other words, the satellite simply couldn't look every day.
 
-**Saboot 2:** Reliance ke flare ki detections mahine ke hisaab se —
+**Evidence 2:** detections of the Reliance flare, by month —
 
 ```
 Jan 40, Feb 16, Mar 25, Apr 8, May 9, Jun 3,
 Jul 2, Aug 6, Sep 13, Oct 21, Nov 26, Dec 29
 ```
 
-**Har mahine dikha!** Matlab flare **24 ghante, saal bhar** jalta hai. Phir
-bhi sirf 127 alag din pe dikha.
+**It showed up every single month!** Meaning the flare burns **24
+hours a day, all year round**. And yet it was only seen on 127
+distinct days.
 
-> **To `activity_ratio` factory ka behaviour nahi naap raha tha — wo
-> SATELLITE kitni baar dekh paya, wo naap raha tha.**
+> **So `activity_ratio` wasn't measuring the factory's behaviour — it
+> was measuring how often the SATELLITE managed to look.**
 
-### Humne kya fix kiya
+### What we fixed
 
-Naya rule: **"150 din se zyada dikha, AUR kam se kam 10 alag dinon mein dikha"**
+New rule: **"seen over more than 150 days, AND seen on at least 10
+distinct days"**
 
-Ye seedhi baat hai — *"lambe samay tak dikha, aur kai baar dikha."*
+That's a simple statement — *"showed up over a long time, and showed
+up many times."*
 
-Aur **number guess nahi kiya, test kiya:**
+And **we didn't guess the number, we tested it:**
 
-| kam se kam kitne din | kitne source mile | unme se sahi kitne |
+| minimum days | sources found | how many correct |
 |---|---|---|
-| 3 din | 74 | sirf 28 ke naam the |
-| 5 din | 13 | 8 |
-| **10 din** | **5** | **5 — saare sahi!** |
-| 15 din | 4 | 4 |
+| 3 days | 74 | only 28 were named correctly |
+| 5 days | 13 | 8 |
+| **10 days** | **5** | **5 — all correct!** |
+| 15 days | 4 | 4 |
 
-**10 din pe 100% sahi jawab mila.** Isliye 10 chuna.
+**10 days gave 100% correct answers.** So 10 was chosen.
 
-> **Agar judge poochhe "ye number kahan se laya?"** — jawab *"plan mein likha
-> tha"* mat dena.
+> **If a judge asks "where did this number come from?"** — don't
+> answer *"it was in the plan."*
 >
-> Jawab do: **"maine chala kar dekha, wo galat tha. Maine wajah dhoondhi —
-> satellite roz dekh hi nahi pata. Phir maine 4 alag numbers test kiye aur jo
-> 100% sahi nikla wo chuna."**
+> Answer: **"I ran it and it was wrong. I found the reason — the
+> satellite simply doesn't look every day. Then I tested four
+> different numbers and picked the one that came out 100% correct."**
 >
-> Ye jawab tumhe baaki sab teams se alag kar dega.
+> That answer will set you apart from every other team.
 
 ---
 
-## 7. 🔴 Ek aur ulti baat — factory ki garmi **kam** hoti hai!
+## 7. 🔴 One more surprising thing — a factory's heat is actually **lower**!
 
-| | kitne source | kitne din tak | raat ko | factory se doori | **garmi (FRP)** |
+| | # sources | over how many days | at night | distance from factory | **heat (FRP)** |
 |---|---|---|---|---|---|
-| EPISODIC (aag) | 5,830 | 0 din | 0% | 7,658 m | **4.26** |
-| **PERSISTENT (factory)** | **5** | **360 din** | **100%** | **0 m** | **1.63** |
+| EPISODIC (fire) | 5,830 | 0 days | 0% | 7,658 m | **4.26** |
+| **PERSISTENT (factory)** | **5** | **360 days** | **100%** | **0 m** | **1.63** |
 
-Ruko — **factory ki garmi kam?** Aag ki zyada?
+Wait — **a factory's heat is lower?** A fire's is higher?
 
-**Haan. Aur wajah simple hai:**
+**Yes. And the reason is simple:**
 
-- **Factory ka flare = mombatti.** Chhoti si lau, par **raat bhar** jalti hai
-- **Khet ki aag = ghaas ka dher.** Ek baar mein **bhadak** kar jal jata hai —
-  badi aag, par **ek hi baar**
+- **A factory's flare = a candle.** A small flame, but it burns **all
+  night long**
+- **A field fire = a haystack.** It **flares up** all at once — a big
+  fire, but only **once**
 
-Ek mombatti ki lau ghaas ke dher se **chhoti** hi hogi na?
+A candle's flame is obviously **smaller** than a burning haystack,
+right?
 
-> **Isliye agar tum sochte ki "jitni zyada garmi, utni pakki factory" — to
-> tumhe BILKUL ULTA jawab milta.**
+> **So if you thought "more heat means more likely to be a factory" —
+> you'd get EXACTLY the opposite answer.**
 >
-> Yahi wajah hai ki "kitni baar dikha" dekhna zaroori tha, "kitni garmi thi"
-> nahi.
+> This is exactly why "how many times it showed up" mattered, not
+> "how hot it was."
 
-Ye baat PPT mein zaroor daalna.
+Make sure this goes in the PPT.
 
 ---
 
-## 8. Model ke liye 3 sabse kaam ki cheezein
+## 8. The 3 most useful things for the model
 
-| Cheez | Factory mein | Aag mein | Kyun |
+| Feature | In a factory | In a fire | Why |
 |---|---|---|---|
-| **raat ko dikhta hai?** | 100% | 0% | flare raat-din jalta hai, kisan **din** mein jalata hai |
-| **factory se doori** | 0 m | 7,000+ m | seedhi baat |
-| **kitne din tak dikha** | 360 | 0 | street light vs patakha |
+| **shows up at night?** | 100% | 0% | a flare burns day and night, a farmer burns **during the day** |
+| **distance from factory** | 0 m | 7,000+ m | self-explanatory |
+| **how many days it showed up** | 360 | 0 | street light vs firecracker |
 
-**"Raat ko dikhta hai ya nahi"** sabse strong nikla — Punjab ke sources ka
-average **2%**, factory ka **100%**.
+**"Whether it shows up at night"** turned out to be the strongest —
+Punjab's sources average **2%**, a factory's is **100%**.
 
 ---
 
-## 9. PPT ke liye numbers (copy kar lena)
+## 9. Numbers for the PPT (copy these)
 
 ```
-8,415 detections  ->  6,010 sources  ->  5 factory
+8,415 detections  ->  6,010 sources  ->  5 factories
 
-kis region mein kya mila:
-                  aag (EPISODIC)  beech ka  factory (PERSISTENT)
+what was found in each region:
+                  fire (EPISODIC)  in-between  factory (PERSISTENT)
   Jamnagar                   457         9                     5
   Punjab                   3,651       125                     0
   Uttarakhand              1,722        41                     0
 
-har region ka character:
-  Jamnagar     factory se 1,703 m door | 44.6% to 1 km ke andar | 41.5% raat ke
-  Uttarakhand  factory se 18,048 m door | 57% jungle pe
-  Punjab       factory se 5,639 m door | sirf 3.4% raat ke
+character of each region:
+  Jamnagar     1,703 m from factory | 44.6% within 1 km | 41.5% at night
+  Uttarakhand  18,048 m from factory | 57% on forest
+  Punjab       5,639 m from factory | only 3.4% at night
 ```
 
-**Sab check ho gaya:** 25 mein se 25 test pass.
+**Everything checked out:** 25 out of 25 tests passed.
 
-Sabse achha test ye tha — 6,010 sources ne milkar kitni detections cover kin?
-Jodke dekha to **exactly 8,415**. Yani **ek bhi detection na kho gayi, na do
-baar gini gayi.** Ek hi number se poora clustering verify ho gaya.
+The best test was this — do the 6,010 sources together cover exactly
+how many detections? Added them up and got **exactly 8,415**. Meaning
+**not a single detection was lost, or counted twice.** One single
+number verified the entire clustering.
 
 ---
 
-## 10. Chalane ka tareeka
+## 10. How to run it
 
 ```bash
 source venv/bin/activate
-python src/step2_context.py      # 2 second
-python src/step3_persistence.py  # 37 second
-python src/preview_map.py        # 5 second
+python src/step2_context.py      # 2 seconds
+python src/step3_persistence.py  # 37 seconds
+python src/preview_map.py        # 5 seconds
 ```
 
-| File bani | Usme kya hai |
+| File produced | What's in it |
 |---|---|
-| `data/processed/features.gpkg` | 8,415 points, ab har ek ko apna aas-paas pata hai |
-| `data/processed/sources.gpkg` | 6,010 sources, har ek ka poora character |
-| `outputs/sources_*.png` | rang wale map — laal = factory, neela = aag |
+| `data/processed/features.gpkg` | 8,415 points, each now knows what's around it |
+| `data/processed/sources.gpkg` | 6,010 sources, full character of each |
+| `outputs/sources_*.png` | color-coded maps — red = factory, blue = fire |
 
 ---
 
-## 11. 🔴 Ab tumhe ye 3 kaam karne hain
+## 11. 🔴 Now you have 3 things to do
 
-**1. Screenshot lo (2 minute)**
-Section 4 wali table (5 factory ke naam) aur `outputs/sources_jamnagar.png`.
-Ye PPT ka dil hai.
+**1. Take screenshots (2 minutes)**
+The table in Section 4 (the 5 factory names) and
+`outputs/sources_jamnagar.png`. This is the heart of the PPT.
 
-**2. QGIS mein khud dekho (10 minute)**
+**2. Look at it yourself in QGIS (10 minutes)**
 ```bash
 qgis data/processed/sources.gpkg data/processed/industry.gpkg
 ```
-`sources` pe right-click → Properties → Symbology → **Categorized** →
+Right-click `sources` → Properties → Symbology → **Categorized** →
 Value = `persistence_tier` → Classify → OK.
 
-Ab laal wale dots pe click karke unke numbers dekho.
+Now click on the red dots and look at their numbers.
 
-**3. `src/step3_persistence.py` poori padho (20 minute)**
-282 lines hain. **Yahi tumhara asli innovation hai** — finale mein sawaal
-yahin se aayenge. Khaas kar do jagah:
-- jahan noise ka faisla liya
-- jahan tier decide hota hai (aur `config.py` ka wo lamba comment)
+**3. Read all of `src/step3_persistence.py` (20 minutes)**
+It's 282 lines. **This is your real innovation** — this is where the
+finals' questions will come from. Especially two spots:
+- where the noise decision is made
+- where the tier is decided (and that long comment in `config.py`)
 
-Kuch samajh na aaye to seedha poochho: *"is function ko line by line samjhao."*
+If anything doesn't make sense, just ask directly: *"explain this
+function line by line."*
 
 ---
 
-## 12. Aage kya hoga (Phase 3)
+## 12. What comes next (Phase 3)
 
-Ab har source pe **naam ka label** lagega — INDUSTRIAL / FOREST_FIRE / AGRI_BURN.
+Every source now gets a **named label** — INDUSTRIAL / FOREST_FIRE /
+AGRI_BURN.
 
-Test karke dekha, abhi ke rules se ye milega:
+Tested with the current rules, here's what we'd get:
 
 ```
 INDUSTRIAL       17
 FOREST_FIRE     824
 AGRI_BURN     3,017
 -------------------
-khud ban jayenge  3,858     <- code apne aap kar dega
-samajh nahi aaya  2,152     <- inme se 100 pe AI (Claude) dekhega
+labelled automatically  3,858     <- the code will do this on its own
+unclear                 2,152     <- 100 of these will go to AI (Claude)
 ```
 
-**Ek problem pehle se pata hai:** Phase 1 mein mila tha ki Punjab ke 5,113
-points mein se sirf **5** kisi "khet" wale polygon pe hain — kyunki OSM pe
-Punjab ke khet mapped hi nahi hain. To "khet pe hai" wala rule kaam nahi karega.
+**One problem is already known:** Phase 1 found that of Punjab's 5,113
+points, only **5** sit on any "farmland" polygon — because Punjab's
+farmland isn't mapped in OSM at all. So the "on farmland" rule won't
+work there.
 
-Uski jagah ye lagayenge: *"jungle pe nahi hai + factory se door hai + ek baar
-ki ghatna hai + Apr/May/Oct/Nov mein hui + din mein hui"*. Ye chaaron milkar
-kaafi hain.
+Instead we'll use: *"not on forest + far from a factory + a one-off
+event + happened in Apr/May/Oct/Nov + happened during the day"*. These
+four together are enough.
 
-**Aur ek baat Phase 4 ke liye yaad rakhna:** `sources.gpkg` mein `lon`/`lat`
-(jagah ke numbers) hain. **Model ko ye mat dena.** Warna wo "Jamnagar =
-factory" ratta maar lega, aur naye shehar mein le jaoge to fail ho jayega.
+**One more thing to remember for Phase 4:** `sources.gpkg` has
+`lon`/`lat` (location numbers). **Don't give these to the model.**
+Otherwise it'll just memorize "Jamnagar = factory," and it'll fail the
+moment you take it to a new city.
 
-**Tumhara kaam Phase 3 mein:** 50 sources khud dekh kar label karne honge —
-lagbhag **1 ghanta**, wo bhi sirf button dabana. Main uski app bana dunga.
+**Your job in Phase 3:** hand-label 50 sources yourself by looking at
+them — roughly **1 hour**, and just button-pressing at that. I'll
+build the app for it.
 
-Ye skip mat karna. Baaki 3,858 labels **rules** ne banaye hain — unpe test
-karoge to tum sirf ye check kar rahe ho ki *"model ne mere rules ratt liye ya
-nahi"*. Wo 50 labels hi **sacchi** parakh hain.
+Don't skip this. The other 3,858 labels were made by **rules** —
+testing against those only checks whether *"the model memorized my own
+rules."* Those 50 labels are the only **genuine** test.

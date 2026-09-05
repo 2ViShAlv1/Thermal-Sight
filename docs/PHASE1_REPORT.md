@@ -5,201 +5,204 @@ Date: 2026-08-27
 
 ---
 
-# Part A — Pehle ye samjho
+# Part A — Understand this first
 
-## A1. Problem kya hai?
+## A1. What's the problem?
 
-NASA ke satellites din-raat dharti ko scan karte rehte hain aur har us jagah
-ko note karte hain jo **aas-paas se zyada garam** hai. Ek saal mein bharat mein
-aise lakhon points aate hain.
+NASA's satellites continuously scan the Earth day and night and note down
+every location that's **hotter than its surroundings**. India alone gets
+millions of these points in a year.
 
-Problem ye hai — **satellite ko sirf garmi dikhti hai, wajah nahi.**
+The problem is — **the satellite only sees heat, not the cause.**
 
-Ek hi jaisa laal dot ho sakta hai:
-- ek refinery ka flare jo 24 ghante jal raha hai
-- jungle ki aag
-- kisan ka parali jalana
-- ya bas ek bahut garam chhat
+An identical-looking red dot could be:
+- a refinery's flare, burning 24 hours a day
+- a forest fire
+- a farmer burning crop residue
+- or just a very hot rooftop
 
-Data mein sab **bilkul ek jaise** dikhte hain. Ek analyst ko agar poochho
-"is mahine kaunsi factories chal rahi thi?", to use hazaaron dots mein se
-haath se dhoondhna padega. Ye impossible hai.
+In the data, all of these look **exactly the same**. If you asked an
+analyst "which factories were running this month?", they'd have to search
+by hand through thousands of dots. That's impossible.
 
-## A2. Hum kya bana rahe hain?
+## A2. What are we building?
 
-Ek system jo har garam point ko **khud batata hai ki wo kya hai** —
-INDUSTRIAL, FOREST_FIRE, ya AGRI_BURN.
+A system that **tells you, on its own, what each hot point is** —
+INDUSTRIAL, FOREST_FIRE, or AGRI_BURN.
 
-Poora project 4 lines mein:
+The whole project in 4 lines:
 
 ```
-1. NASA se garam points ka data download karo
-2. Pata karo har point ke aas-paas kya hai (factory? jungle? khet?)
-3. Rules + AI se label lagao
-4. Model train karke map pe colour ke saath dikhao
+1. Download hot-point data from NASA
+2. Find out what's around each point (factory? forest? farmland?)
+3. Label with rules + AI
+4. Train a model and show it on a map with color
 ```
 
-Jab bhi confuse lago, in 4 lines pe wapas aana.
+Whenever confused, come back to these 4 lines.
 
-## A3. Idea kaam kyun karega?
+## A3. Why will this idea work?
 
-Do observations pe pura project khada hai:
+The whole project rests on two observations:
 
-**Observation 1 — Aas-paas se pata chalta hai.**
-Agar garam point ek refinery ke **upar** hai, to wo refinery ka flare hai.
-Agar jungle ke beech mein hai, to jungle ki aag hai. Isliye humein har point
-ke aas-paas kya hai, ye pata karna hoga. Yahi Phase 1 ka kaam hai.
+**Observation 1 — surroundings tell you a lot.**
+If a hot point is **on top of** a refinery, it's the refinery's flare. If
+it's in the middle of a forest, it's a forest fire. So we need to find out
+what's around every point. That's Phase 1's job.
 
-**Observation 2 — Time se pata chalta hai.** *(Ye Phase 2 mein aayega)*
-Factory **roz** jalti hai — 6 mahine tak wahi ek jagah baar-baar garam
-dikhegi. Jungle ki aag 3 din chalti hai aur khatam. Yani agar ek hi jagah
-mahinon tak repeat ho rahi hai → wo chalti hui factory hai.
+**Observation 2 — timing tells you a lot.** *(This comes in Phase 2)*
+A factory burns **every day** — for 6 months the same spot keeps showing up
+hot, again and again. A forest fire runs for 3 days and stops. So if the
+same spot keeps repeating for months → it's a running factory.
 
-Ye doosra idea hi tumhara asli **innovation** hai. Zyadatar teams sirf
-observation 1 karti hain.
+This second idea is your real **innovation**. Most teams only do
+observation 1.
 
-## A4. To Phase 1 ka aim kya tha?
+## A4. So what was Phase 1's goal?
 
-> **Do cheezein download karna — garam points, aur unke aas-paas ka naksha.**
+> **Download two things — hot points, and a map of what's around them.**
 
-Bas itna. Na koi model, na koi AI, na koi label. Sirf raw material jama karna.
+That's it. No model, no AI, no labels yet. Just gathering the raw material.
 
-Kyunki agar ye data hi galat aaya, to aage sab kuch galat hoga. Isliye Phase 1
-ka aadha kaam **data laana** hai aur aadha **check karna ki wo sahi hai.**
+Because if this data itself comes out wrong, everything downstream will be
+wrong. So half of Phase 1's work is **getting the data**, and half is
+**checking that it's correct.**
 
-**Phase 1 tab poora mana jayega jab:** teeno files ban jayein, aur unhe map pe
-dekhne par Jamnagar ke dots factory ke upar dikhein aur Uttarakhand ke dots
-jungle ke andar.
+**Phase 1 counts as complete when:** all three files exist, and looking at
+them on a map shows Jamnagar's dots sitting on top of factories and
+Uttarakhand's dots inside forest.
 
 ---
 
-# Part B — Shabdkosh (mushkil shabdon ka matlab)
+# Part B — Glossary (meaning of the tricky terms)
 
-Aage padhne se pehle ye tables dekh lo. Finale mein judges yahi terms poochenge.
+Look at these tables before reading further. Judges will ask about exactly
+these terms in the finals.
 
-## B1. Satellite data ke shabd
+## B1. Satellite data terms
 
-| Shabd | Matlab |
+| Term | Meaning |
 |---|---|
-| **FIRMS** | NASA ki free service jo garam points ka data deti hai. Pura naam: Fire Information for Resource Management System |
-| **VIIRS** | Wo camera/sensor jo satellite pe laga hai aur garmi naapta hai. Ek pixel = lagbhag 375 metre × 375 metre zameen |
-| **Hotspot / detection** | Ek row jo kehti hai "is lat-long pe, is date-time pe, garmi mili thi". **Ye aag ka saboot nahi hai** — bas garmi ka |
-| **FRP** | Fire Radiative Power, MegaWatt mein. Wo garmi kitni tez thi. Hamare data mein median 4.2 MW, max 118.9 MW |
-| **bright_ti4 / bright_ti5** | Do alag wavelengths pe naapa gaya temperature (Kelvin mein) |
-| **daynight** | `D` = din ka detection, `N` = raat ka. **Raat ka detection zyada bharosemand hai** kyunki dhoop se garam hui chhat wagairah confuse nahi karti. Hamare data mein 19% raat ke hain |
-| **confidence** | NASA ka apna bharosa — `l` (low), `n` (nominal), `h` (high) |
-| **SP vs NRT** | `SP` = Standard Processing, purana par saaf data. `NRT` = Near Real Time, taaza par kam saaf. NRT sirf pichhle ~2 mahine rakhta hai |
+| **FIRMS** | NASA's free service that provides hot-point data. Full name: Fire Information for Resource Management System |
+| **VIIRS** | The camera/sensor mounted on the satellite that measures heat. One pixel = roughly 375 metres × 375 metres of ground |
+| **Hotspot / detection** | A row saying "heat was detected at this lat-long, at this date-time." **This is not proof of fire** — just of heat |
+| **FRP** | Fire Radiative Power, in MegaWatts. How intense the heat was. In our data the median is 4.2 MW, max 118.9 MW |
+| **bright_ti4 / bright_ti5** | Temperature (in Kelvin) measured at two different wavelengths |
+| **daynight** | `D` = daytime detection, `N` = nighttime. **A nighttime detection is more reliable** because a sun-heated rooftop etc. can't confuse it. 19% of our data is at night |
+| **confidence** | NASA's own confidence rating — `l` (low), `n` (nominal), `h` (high) |
+| **SP vs NRT** | `SP` = Standard Processing, older but cleaner data. `NRT` = Near Real Time, fresh but less clean. NRT only keeps the last ~2 months |
 
-## B2. Naksha (map) ke shabd
+## B2. Map terms
 
-| Shabd | Matlab |
+| Term | Meaning |
 |---|---|
-| **Latitude / Longitude** | Zameen pe kisi jagah ka pata. Latitude = upar-neeche (uttar-dakshin), Longitude = daayein-baayein (poorab-pashchim) |
-| **bbox** | Bounding box — ek chaukor dabba jo kisi ilaake ko gher leta hai. 4 numbers se banta hai: `(west, south, east, north)`. **Longitude pehle aata hai** |
-| **Point** | Naksha pe ek dot. Har hotspot ek Point hai |
-| **Polygon** | Naksha pe ek band aakriti (shape). Ek factory ka ahaata, ek jungle ka ilaaka — sab polygons hain |
-| **CRS** | Coordinate Reference System. Naksha ki "bhaasha" — kis unit mein numbers likhe hain |
-| **EPSG:4326** | CRS jo **degrees** mein hai. Naksha dikhane aur file save karne ke liye. Yahan distance naapna bekaar hai |
-| **EPSG:32643** | CRS jo **metres** mein hai (UTM zone 43N). Distance naapne se pehle isme convert karna **zaroori** hai |
-| **GeoPackage (.gpkg)** | Ek file jisme naksha ka data hota hai. Ek hi file, QGIS mein drag karke khul jati hai. Database jaisa kaam, bina database ke |
-| **QGIS** | Free software jisme naksha kholke dekh sakte ho |
+| **Latitude / Longitude** | An address for a place on Earth. Latitude = up-down (north-south), Longitude = left-right (east-west) |
+| **bbox** | Bounding box — a rectangular box that encloses an area. Made of 4 numbers: `(west, south, east, north)`. **Longitude comes first** |
+| **Point** | A dot on a map. Every hotspot is a Point |
+| **Polygon** | A closed shape on a map. A factory's boundary, a stretch of forest — all polygons |
+| **CRS** | Coordinate Reference System. The map's "language" — what unit the numbers are written in |
+| **EPSG:4326** | A CRS in **degrees**. For displaying maps and saving files. Measuring distance in it is meaningless |
+| **EPSG:32643** | A CRS in **metres** (UTM zone 43N). Converting to it before measuring distance is **essential** |
+| **GeoPackage (.gpkg)** | A file holding map data. A single file, opens by dragging into QGIS. Works like a database, without needing one |
+| **QGIS** | Free software for opening and viewing maps |
 
-### CRS ki baat sabse zaroori hai — isse 10 log fasten hain
+### The CRS thing matters most — this is what trips 10 people up
 
-**Problem:** EPSG:4326 mein numbers degrees mein hote hain. Agar tum usme
-distance naapo, to jawab "0.004" aayega — 0.004 **kya**? Degrees. Wo kitne
-metre hue? Ye latitude pe depend karta hai, kyunki poles ke paas longitude
-ki lines paas aa jati hain.
+**Problem:** in EPSG:4326, numbers are in degrees. If you measure distance
+in it, the answer comes out as "0.004" — 0.004 **what**? Degrees. How many
+metres is that? It depends on the latitude, because longitude lines get
+closer together near the poles.
 
-**Solution:** distance naapne se pehle `gdf.to_crs(32643)`. Ab har number
-**metre** mein hai. `500` ka matlab seedha 500 metre.
+**Solution:** `gdf.to_crs(32643)` before measuring distance. Now every
+number is in **metres**. `500` simply means 500 metres.
 
-**Rule:** naksha dikhana ho → 4326. Distance/area naapna ho → 32643.
+**Rule:** displaying a map → 4326. Measuring distance/area → 32643.
 
-## B3. OpenStreetMap ke shabd
+## B3. OpenStreetMap terms
 
-| Shabd | Matlab |
+| Term | Meaning |
 |---|---|
-| **OSM** | OpenStreetMap — Wikipedia jaisa naksha, jise duniya bhar ke log banate hain. Free hai |
-| **.osm.pbf** | OSM ka data file format. Compressed hota hai, isliye India ki poori file bhi sirf 1.4 GB hai |
-| **Geofabrik** | Website jo OSM ka data tukdon mein baant kar deti hai (state-wise, zone-wise) |
-| **Tag** | OSM mein har cheez pe labels lage hote hain, `key=value` ke roop mein. Jaise `landuse=industrial`, `natural=wood`, `power=plant` |
-| **multipolygons layer** | OSM file ka wo hissa jisme saare polygons hain (buildings, forests, factories) |
+| **OSM** | OpenStreetMap — a Wikipedia-style map built by people around the world. Free |
+| **.osm.pbf** | OSM's data file format. Compressed, so even the whole of India fits in just 1.4 GB |
+| **Geofabrik** | A website that splits OSM's data into chunks (by state, by zone) |
+| **Tag** | On OSM, every feature carries labels as `key=value` pairs. Like `landuse=industrial`, `natural=wood`, `power=plant` |
+| **multipolygons layer** | The part of an OSM file containing all polygons (buildings, forests, factories) |
 
-## B4. Kaam ke shabd
+## B4. Work terms
 
-| Shabd | Matlab |
+| Term | Meaning |
 |---|---|
-| **Pipeline** | Scripts ki ek line jahan har script ka output agli ka input banta hai |
-| **Idempotent** | Ek script jo dobara chalane pe **wahi** jawab de, aur nuksaan na kare |
-| **Cache** | Downloaded cheez ko save kar lena, taaki dobara download na karna pade |
-| **Rate limit** | Server ka niyam — "itni tez requests mat bhejo". Isliye beech mein `sleep` lagana padta hai |
-| **CSV** | Comma Separated Values — simple table file, Excel mein khul jati hai |
-| **Schema** | File mein kaun-kaun se columns hain aur kis type ke |
+| **Pipeline** | A chain of scripts where each script's output becomes the next one's input |
+| **Idempotent** | A script that gives **the same** answer every time it's rerun, and causes no harm |
+| **Cache** | Saving something already downloaded, so it doesn't need downloading again |
+| **Rate limit** | A server's rule — "don't send requests too fast." That's why a `sleep` is needed in between |
+| **CSV** | Comma Separated Values — a simple table file, opens in Excel |
+| **Schema** | What columns a file has and of what type |
 
 ---
 
-# Part C — Phase 1 mein kya banaya
+# Part C — What was built in Phase 1
 
-## C1. Pipeline — ek nazar mein
+## C1. Pipeline — at a glance
 
 ```
    INTERNET
       |
-      |  step1_download.py       "garam points laao"
+      |  step1_download.py       "get the hot points"
       v
   hotspots.gpkg                   8,415 points
       |
       |
    INTERNET (Geofabrik)
       |
-      |  step2_context.py        "aas-paas ka naksha laao"
+      |  step2_context.py        "get a map of what's around"
       v
   industry.gpkg + landuse.gpkg    820 + 21,170 polygons
       |
-      |  preview_map.py          "aankhon se check karo"
+      |  preview_map.py          "check it visually"
       v
   outputs/preview_*.png
 
-  [ PHASE 1 YAHAN KHATAM ]
+  [ PHASE 1 ENDS HERE ]
       |
-      |  Phase 2 mein: in dono ko jodkar features banana
+      |  In Phase 2: merge these two to build features
       v
 ```
 
-## C2. Result — ek line mein
+## C2. Result — in one line
 
-| Cheez | Count |
+| Item | Count |
 |---|---|
 | FIRMS hotspots (2025, 3 regions) | **8,415** |
 | OSM industry polygons | **820** |
 | OSM landuse polygons | **21,170** |
-| Code likha | 868 lines (5 files) |
-| Data download | 758 MB raw → 21 MB processed |
+| Code written | 868 lines (5 files) |
+| Data downloaded | 758 MB raw → 21 MB processed |
 
-Aur sabse badi baat — Jamnagar ke hotspots ka nearest factory nikala to top pe
-**Reliance Refinery** aur **Vadinar Refinery** aaye. Yani idea kaam kar raha hai.
+And the best part — finding the nearest factory to Jamnagar's hotspots
+brought up **Reliance Refinery** and **Vadinar Refinery** at the top.
+Meaning the idea works.
 
 ---
 
-# Part D — Har step: kya, kyun, kaise
+# Part D — Every step: what, why, how
 
 ## Step 0 — Setup
 
-### Kya kiya
-Ek `venv` banaya aur 14 libraries install kin.
+### What was done
+Created a `venv` and installed 14 libraries.
 
-### Kyun
-**`venv` kya hai:** ek alag dabba jisme is project ki libraries rehti hain.
-System ke Python ko chhua nahi jata.
+### Why
+**What `venv` is:** an isolated box holding this project's libraries. The
+system's Python is never touched.
 
-**Kyun zaroori:** agar kal koi doosra project alag version maange, to dono
-aapas mein nahi ladenge. Aur Day 6 pe doosre laptop pe chalane ke liye bas
-`requirements.lock.txt` bhejna hoga.
+**Why it matters:** if some other project needs a different version
+tomorrow, the two won't clash. And on Day 6, running it on a different
+laptop just needs `requirements.lock.txt` sent over.
 
 ```bash
 cd /home/vank/SIH
-source venv/bin/activate      # har baar kaam se pehle
+source venv/bin/activate      # every time before starting work
 ```
 
 ### Folder structure
@@ -207,136 +210,138 @@ source venv/bin/activate      # har baar kaam se pehle
 ```
 SIH/
   data/
-    raw/          # jo download kiya - 3 pbf + 219 CSV  (gitignored)
-    processed/    # jo humne banaya - 3 .gpkg files
-    chips/        # khaali (Phase 3 ke satellite images ke liye)
-  src/            # saara code
-  models/         # khaali (Phase 4)
-  outputs/        # preview maps, aage charts bhi
+    raw/          # what was downloaded - 3 pbf + 219 CSV  (gitignored)
+    processed/    # what we built - 3 .gpkg files
+    chips/        # empty (for Phase 3's satellite images)
+  src/            # all the code
+  models/         # empty (Phase 4)
+  outputs/        # preview maps, charts later
   venv/
   .env            # FIRMS key (gitignored, chmod 600)
-  .env.example    # template - isme asli key kabhi mat daalna
+  .env.example    # template - never put the real key in this
 ```
 
-**Raw aur processed alag kyun:** raw ko kabhi haath nahi lagate. Agar processing
-mein galti ho jaye, to dobara download nahi karna padta — raw se phir se bana
-sakte ho.
+**Why raw and processed are separate:** raw is never touched by hand. If a
+mistake happens during processing, there's no need to redownload — it can
+be rebuilt from raw.
 
 ---
 
-## Step 1 — `config.py`: saari settings ek jagah
+## Step 1 — `config.py`: all settings in one place
 
-### Kya kiya
-Ek file jisme **saare numbers** hain — bbox, dates, CRS, classes.
+### What was done
+A file holding **every number** — bbox, dates, CRS, classes.
 
-### Kyun
-Ye sabse important design decision hai. Agar bbox teen alag files mein likha
-hota, aur tumhe use badalna pade, to teen jagah badalna padta — aur ek jagah
-bhoolne pe **ghanton** debug karte.
+### Why
+This is the most important design decision. If the bbox were written in
+three separate files, changing it would mean editing three places — and
+forgetting one would cost **hours** of debugging.
 
-Ab bbox badalna ho → **sirf ek line**.
+Now changing a bbox → **just one line**.
 
-### Isme kya hai
+### What's in it
 
 ```python
 REGIONS = {
     "jamnagar":    (69.4, 21.8, 70.6, 22.9),   # Gujarat - refineries
-    "uttarakhand": (78.8, 29.2, 80.2, 30.4),   # Kumaon - jungle
-    "punjab":      (75.2, 30.2, 76.4, 31.0),   # Ludhiana - khet
+    "uttarakhand": (78.8, 29.2, 80.2, 30.4),   # Kumaon - forest
+    "punjab":      (75.2, 30.2, 76.4, 31.0),   # Ludhiana - farmland
 }
 ```
 
-**Teen regions hi kyun chune?** Kyunki humein teeno classes ka data chahiye,
-aur ye teen jagah har class ka **saaf udaharan** deti hain:
-- Jamnagar mein Asia ki sabse badi refinery hai → INDUSTRIAL milega
-- Kumaon mein har saal jungle ki aag lagti hai → FOREST_FIRE milega
-- Ludhiana mein Oct-Nov mein parali jalti hai → AGRI_BURN milega
+**Why exactly these three regions?** Because we need data for all three
+classes, and these three places each give a **clean example** of a class:
+- Jamnagar has one of Asia's largest refineries → gives us INDUSTRIAL
+- Kumaon has forest fires every year → gives us FOREST_FIRE
+- Ludhiana burns crop residue every Oct-Nov → gives us AGRI_BURN
 
-**Bbox ka order `(west, south, east, north)` hai — LONGITUDE PEHLE.**
-Ye ulta ho gaya to points samundar mein ya duniya ke doosre kone mein dikhenge.
-Ye sabse common bug hai.
+**The bbox order is `(west, south, east, north)` — LONGITUDE FIRST.**
+Get this backwards and points show up in the ocean or on the other side of
+the world. This is the most common bug.
 
-Aur:
+And:
 ```python
-START = "2025-01-01";  END = "2025-12-31"   # pura saal
-CRS_LATLON = 4326      # degrees - dikhane ke liye
-CRS_METRES = 32643     # metres - naapne ke liye
+START = "2025-01-01";  END = "2025-12-31"   # the whole year
+CRS_LATLON = 4326      # degrees - for displaying
+CRS_METRES = 32643     # metres - for measuring
 ```
 
-**Pura saal kyun?** Kyunki seasons matter karte hain. Parali sirf Oct-Nov mein
-jalti hai, jungle ki aag Apr-Jun mein. Agar sirf 1 mahina lete, to ek class ka
-data hi na milta.
+**Why the whole year?** Because seasons matter. Crop residue only burns in
+Oct-Nov, forest fires in Apr-Jun. Taking just 1 month would mean missing
+one class's data entirely.
 
 ---
 
-## Step 2 — `step1_download.py`: garam points laana
+## Step 2 — `step1_download.py`: getting the hot points
 
-### Kya kiya
-NASA FIRMS se 2025 ka pura data, teeno regions ke liye, download karke ek
-GeoPackage banaya.
+### What was done
+Downloaded all of 2025's data from NASA FIRMS, for all three regions, into
+one GeoPackage.
 
-### Kyun
-Ye project ka **kaccha maal** hai. Har cheez isi pe khadi hogi.
+### Why
+This is the project's **raw material**. Everything else is built on it.
 
-### Kaise — 5-5 din ke tukde
+### How — split into 5-day chunks
 
-FIRMS ek request mein pura saal nahi deta. Isliye saal ko tukdon mein todte hain:
+FIRMS won't give a whole year in one request. So the year is split into
+chunks:
 
 ```
-2025-01-01 se 5 din  →  ek CSV
-2025-01-06 se 5 din  →  ek CSV
-...  73 tukde ...
+2025-01-01 for 5 days  →  one CSV
+2025-01-06 for 5 days  →  one CSV
+...  73 chunks ...
 ```
 
-73 tukde × 3 regions = **219 requests**.
+73 chunks × 3 regions = **219 requests**.
 
-### 🔴 Plan mein ek cheez purani thi
+### 🔴 One thing in the plan was outdated
 
-Plan kehta tha "maximum 10 days per request". Test kiya to API ne bola:
+The plan said "maximum 10 days per request". Tested it and the API said:
 
 ```
 HTTP 400 — Invalid day range. Expects [1..5].
 ```
 
-To limit ab **5 din** hai, 10 nahi. `CHUNK_DAYS = 5` kar diya.
+So the limit is now **5 days**, not 10. Set `CHUNK_DAYS = 5`.
 
-> **Finale mein pooch sakte hain:** "API limit kaise handle ki?"
-> **Jawab:** chunking + rate-limit sleep + resume-safe caching.
+> **Might come up in the finals:** "How was the API limit handled?"
+> **Answer:** chunking + rate-limit sleep + resume-safe caching.
 
-### Teen design decisions — aur unke peeche ki soch
+### Three design decisions — and the reasoning behind them
 
-**a) Error content se pakadte hain, status code se nahi.**
+**a) Errors are detected from content, not status code.**
 
-Normally server galti pe HTTP 400/500 bhejta hai. Par FIRMS kabhi-kabhi
-**HTTP 200 (sab theek hai)** bhejta hai, aur body mein CSV ki jagah error
-text daal deta hai.
+Normally a server sends HTTP 400/500 on error. But FIRMS sometimes sends
+**HTTP 200 (everything's fine)** and puts error text in the body instead
+of a CSV.
 
-To humne check kiya: response ki pehli line `latitude` se shuru hoti hai ya
-nahi (CSV ka header). Nahi → error hai.
+So we check: does the first line of the response start with `latitude`
+(the CSV header)? If not → it's an error.
 
-**b) Source chunne ke liye rows ginte hain.**
+**b) The source is chosen by counting rows.**
 
-Plan kehta hai "SP try karo, fail ho to NRT". Par yahan ek jaal hai —
-**NRT fail hota hi nahi.** 2025 maangne pe wo khaali CSV bhejta hai
-(sirf header, 0 rows), kyunki NRT sirf pichhle ~2 mahine rakhta hai.
-Technically "success" hai.
+The plan says "try SP, fall back to NRT if it fails". But there's a trap
+here — **NRT never fails.** Asking it for 2025 returns an empty CSV (just
+a header, 0 rows), because NRT only keeps the last ~2 months. Technically
+that's "success".
 
-Agar humne sirf "error to nahi aaya" check kiya hota, to NRT select ho jata
-aur **poora project 0 rows pe khada hota**.
+If we'd only checked "did an error come back", NRT would have been
+selected and **the whole project would sit on 0 rows.**
 
-Isliye code rows ginta hai:
+So the code counts rows instead:
 ```
-VIIRS_SNPP_SP  -> 11 rows  ✓ ye select hua
-VIIRS_SNPP_NRT -> 0 rows   (sirf header - reject)
+VIIRS_SNPP_SP  -> 11 rows  ✓ this one gets selected
+VIIRS_SNPP_NRT -> 0 rows   (header only - rejected)
 ```
 
 **c) Resume-safe caching.**
 
-Har tukda apni CSV file mein save hota hai. Agli baar chalane pe, file exist
-kare to download skip.
+Each chunk saves to its own CSV file. On the next run, if the file already
+exists, the download is skipped.
 
-**Kyun:** 219 requests mein 7 minute lagte hain. Agar 200th pe internet gaya,
-to dobara shuru se? Nahi — 199 cached hain, wo 7 second mein nikal jayenge.
+**Why:** 219 requests take 7 minutes. If the internet drops at request 200,
+start over from scratch? No — 199 are cached, they'll come back in 7
+seconds.
 
 ### Result
 
@@ -345,67 +350,67 @@ Total rows      : 8,415
   punjab          5,113
   uttarakhand     2,475
   jamnagar          827
-Date range      : 2025-01-01 se 2025-12-31
+Date range      : 2025-01-01 to 2025-12-31
 FRP median      : 4.22 MW    max: 118.88 MW
 Night detections: 19%
 ```
 
-**Punjab mein itne zyada kyun?** Kyunki Oct-Nov mein poore Punjab mein ek
-saath parali jalti hai — hazaaron chhoti aag. Jamnagar mein sirf kuch
-factories hain, isliye kam.
+**Why so many in Punjab?** Because in Oct-Nov, all of Punjab burns crop
+residue at once — thousands of small fires. Jamnagar only has a handful of
+factories, so fewer.
 
 Output: **`data/processed/hotspots.gpkg`** — 8,415 points, 17 columns
 
 ---
 
-## Step 3 — `step2_context.py`: aas-paas ka naksha laana
+## Step 3 — `step2_context.py`: getting a map of the surroundings
 
-### Kya kiya
-OSM se har region ke polygons nikale, aur do buckets mein daale —
-**industry** aur **landuse**.
+### What was done
+Pulled polygons from OSM for each region and sorted them into two buckets —
+**industry** and **landuse**.
 
-### Kyun
-Yahi "context" hai — jiske bina hotspot bekaar hai.
+### Why
+This is the "context" — without which a hotspot is useless.
 
-Ek hotspot akela kuch nahi batata. Par agar pata chal jaye ki wo hotspot
-ek **refinery ke ahaate ke andar** hai, to jawab saaf hai. Aur agar wo
-**jungle ke beech** hai, to wo jungle ki aag hai.
+A hotspot on its own says nothing. But knowing that a hotspot sits **inside
+a refinery's boundary** gives a clear answer. And if it's **in the middle
+of a forest**, it's a forest fire.
 
-To humein chahiye:
-- **industry.gpkg** — saare factories/refineries/plants ke polygons
-- **landuse.gpkg** — kaunsi zameen jungle hai, kaunsi khet, kaunsi shehar
+So we need:
+- **industry.gpkg** — polygons for every factory/refinery/plant
+- **landuse.gpkg** — which land is forest, which is farmland, which is city
 
-### Kaise — pehle chhota karo, phir padho
+### How — shrink first, then read
 
-Zone file 335 MB ki hai, usme lakhon polygons hain. Poori file memory mein
-lene ki koshish karoge to laptop hang ho jayega.
+A zone file is 335 MB with millions of polygons. Trying to load the whole
+thing into memory would hang the laptop.
 
-Isliye **bbox filter GDAL ke level pe** lagta hai — yani file padhte waqt hi,
-disk pe. Sirf hamare ilaake ke polygons memory mein aate hain:
+So the **bbox filter is applied at the GDAL level** — that is, while
+reading the file off disk. Only polygons for our region ever reach memory:
 
 ```python
 pyogrio.read_dataframe(pbf_path, layer="multipolygons", bbox=bbox)
 ```
 
-Result: 7,186 / 35,082 / 40,552 polygons — lakhon nahi.
+Result: 7,186 / 35,082 / 40,552 polygons — not millions.
 
-### 🔴 Plan se ek zaroori deviation — `other_tags` parser
+### 🔴 A necessary deviation from the plan — the `other_tags` parser
 
-Plan kehta hai industry filter mein `power == 'plant'` use karo.
-Problem: **GDAL ye tag normal column mein deta hi nahi.**
+The plan says to use `power == 'plant'` in the industry filter. Problem:
+**GDAL doesn't expose this tag as a normal column at all.**
 
-GDAL ke multipolygons layer mein kuch hi tags ke proper columns bante hain
-(`landuse`, `man_made`, `natural`, `name`). Baaki **sab ek single string
-mein thuse** hote hain:
+In GDAL's multipolygons layer, only a handful of tags get their own proper
+columns (`landuse`, `man_made`, `natural`, `name`). Everything else is
+**crammed into a single string**:
 
 ```
 "power"=>"plant","operator"=>"NTPC","plant:source"=>"coal"
 ```
 
-Isliye ek chhota parser likha (`parse_other_tags`) jo isse Python dict bana
-deta hai.
+So a small parser (`parse_other_tags`) was written to turn this into a
+Python dict.
 
-**Iske bina akele Jamnagar mein 42 power plants miss ho jate.**
+**Without it, 42 power plants would have been missed in Jamnagar alone.**
 
 ### Result
 
@@ -415,47 +420,47 @@ deta hai.
 | Uttarakhand | **59** — other 41, mine 11, power_plant 7 | 17,773 — urban 12721, **forest 4541**, cropland 511 |
 | Punjab | **434** — other 431, mine 1, steel 1, power_plant 1 | 2,828 — urban 1619, **cropland 963**, forest 246 |
 
-Expected pattern bilkul mil raha hai — Jamnagar mein refineries, Uttarakhand
-mein forest ka dher, Punjab mein cropland.
+The expected pattern shows up exactly right — refineries in Jamnagar, a
+sea of forest in Uttarakhand, cropland in Punjab.
 
 ---
 
-# Part E — Jo galtiyan pakdi
+# Part E — Bugs caught
 
-## E1. 🔴 Sabse bada bug — galat OSM zone file
+## E1. 🔴 The biggest bug — wrong OSM zone file
 
-### Kya hua
-Pehli baar chalane pe **Uttarakhand mein 0 industry, 0 landuse** aaye.
+### What happened
+On the first run, **Uttarakhand came out with 0 industry, 0 landuse.**
 
-### Wajah
-Geofabrik apne data ko "zones" mein baantta hai. Maine socha "northern zone"
-mein Uttarakhand hoga (naam se to yahi lagta hai).
+### The reason
+Geofabrik splits its data into "zones". I assumed Uttarakhand would be in
+the "northern zone" (the name suggests that).
 
-**Hai hi nahi.** Uttarakhand `central-zone` mein hai.
+**It isn't.** Uttarakhand is in `central-zone`.
 
-### Kaise pakda
-Geofabrik har zone ki `.poly` file deti hai — usme us zone ki asli boundary
-hoti hai. Wo download karke shapely se check kiya ki hamara bbox kis zone ke
-andar aata hai:
+### How it was caught
+Geofabrik provides a `.poly` file for every zone — the zone's actual
+boundary. That was downloaded and checked with shapely to see which zone
+our bbox actually falls inside:
 
-| Region | Sahi zone | Coverage |
+| Region | Correct zone | Coverage |
 |---|---|---|
 | Jamnagar (Gujarat) | `western-zone` | 100% |
 | Uttarakhand (Kumaon) | **`central-zone`** | 100% |
 | Punjab (Ludhiana) | `northern-zone` | 100% |
 
-Geofabrik ka "northern zone" = J&K, Ladakh, HP, Punjab, Haryana, Delhi,
-Rajasthan. Uttarakhand central-zone mein hai (UP/MP ke saath).
+Geofabrik's "northern zone" = J&K, Ladakh, HP, Punjab, Haryana, Delhi,
+Rajasthan. Uttarakhand is in central-zone (along with UP/MP).
 
 ### Fix
-Ye mapping `config.py` mein `REGION_PBF` dict ke roop mein **hardcode kar di**,
-comment ke saath ki "dobara mat guess karna".
+This mapping was **hardcoded** into `config.py` as the `REGION_PBF` dict,
+with a comment saying "don't guess this again."
 
-Bonus: ab har region sirf apni ek file padhta hai — 3 guna tez bhi ho gaya.
+Bonus: now each region only reads its own single file — 3x faster too.
 
-### Ek shortcut jo plan mein nahi tha
-Plan bolta hai poori India ki file (1.4 GB) download karo. Zaroorat nahi —
-teen zone files kaafi hain:
+### A shortcut not in the plan
+The plan says to download all of India's file (1.4 GB). Not needed — three
+zone files are enough:
 
 ```
 central-zone-latest.osm.pbf    335 MB   (Uttarakhand)
@@ -463,75 +468,80 @@ northern-zone-latest.osm.pbf   213 MB   (Punjab)
 western-zone-latest.osm.pbf    210 MB   (Jamnagar)
 ```
 
-## E2. 🔴 Bug — cached rerun pe bekaar sleep
+## E2. 🔴 Bug — wasted sleep on a cached rerun
 
-Verification ke waqt mila. Maine report mein pehle likha tha "rerun 2 second
-mein". Measure kiya to **3 min 50 sec** nikla.
+Found during verification. The report earlier said "rerun in 2 seconds."
+Measured it and got **3 min 50 sec**.
 
-**Wajah:** rate-limit wali `sleep(1)` cached chunks pe bhi chal rahi thi —
-219 chunks × 1 sec = 3m39s bekaar wait.
+**Reason:** the rate-limit `sleep(1)` was running even for cached chunks —
+219 chunks × 1 sec = 3m39s of wasted wait.
 
-**Fix:** `download_chunk` ab batata hai ki network use hua ya nahi, aur sleep
-sirf tab hoti hai. **3m50s → 7 second.** Output bilkul same 8,415 rows.
+**Fix:** `download_chunk` now reports whether the network was actually
+used, and the sleep only happens then. **3m50s → 7 seconds.** Output stays
+the exact same 8,415 rows.
 
-## E3. 🔴 Bug — ek tooti geometry
+## E3. 🔴 Bug — a broken geometry
 
-### Kya hua
-Uttarakhand mein ek forest polygon (`osm_id 20022414`) **self-intersecting**
-tha — kisi ne OSM pe map karte waqt line cross kar di thi (bow-tie shape).
+### What happened
+A forest polygon in Uttarakhand (`osm_id 20022414`) was
+**self-intersecting** — someone crossed a line while drawing it on OSM
+(a bow-tie shape).
 
-### Kyun matter karta hai
-Aisi geometry pe `sjoin` / distance operations **galat jawab de sakte hain
-ya crash kar sakte hain**. Aaj chal gaya, par ye bharosemand nahi hai.
+### Why it matters
+`sjoin` / distance operations on such geometry **can give wrong answers or
+crash**. It worked today, but it isn't reliable.
 
-### Fix — aur meri ek galti
-`fix_geometries()` add kiya. **Pehla attempt galat tha:** `make_valid()` ne
-us polygon ko GeometryCollection bana diya (polygon + wo lines jahan ring
-cut kar raha tha), aur mera code use **gira** raha tha — 21,170 se 21,169.
+### Fix — and a mistake I made
+Added `fix_geometries()`. **The first attempt was wrong:** `make_valid()`
+turned that polygon into a GeometryCollection (the polygon plus the lines
+where the ring crossed itself), and my code was **dropping** it —
+21,170 down to 21,169.
 
-Wo galat hai. Us jungle ka area **asli** hai, bas uski drawing tooti thi.
-Row girana matlab data khona.
+That's wrong. That forest's area is **real**, only its drawing was broken.
+Dropping the row means losing data.
 
-Ab code collection mein se sirf polygon wala hissa nikaal leta hai.
+Now the code pulls out just the polygon part from the collection.
 **Result: 21,170 polygons, 0 invalid.**
 
 ---
 
-# Part F — Verification: sach mein chal raha hai?
+# Part F — Verification: does it actually work?
 
-Sirf "error nahi aaya" kaafi nahi hai. Har script rerun kiya aur har output
-check kiya.
+Just "no error" isn't enough. Every script was rerun and every output
+checked.
 
-## F1. Reruns deterministic hain
+## F1. Reruns are deterministic
 
 | Script | Time | Output |
 |---|---|---|
-| `step1_download.py` | 7 sec (cached) | 8,415 rows — pehle jaisa hi |
-| `step2_context.py` | 2 min 10 sec | 820 + 21,170 — pehle jaisa hi |
-| `preview_map.py` | 3 sec | 3 PNG |
+| `step1_download.py` | 7 sec (cached) | 8,415 rows — same as before |
+| `step2_context.py` | 2 min 10 sec | 820 + 21,170 — same as before |
+| `preview_map.py` | 3 sec | 3 PNGs |
 
-**Kyun matter karta hai:** dobara chalane pe alag jawab aaye to kahin randomness
-ya bug hai. Same jawab = bharosemand pipeline.
+**Why this matters:** if rerunning gives a different answer, there's
+randomness or a bug somewhere. Same answer = a trustworthy pipeline.
 
 ## F2. Data integrity — 24/24 checks pass
 
 ```
-hotspots.gpkg   8,415 rows | EPSG:4326 | 0 null | 0 invalid | sab Point
+hotspots.gpkg   8,415 rows | EPSG:4326 | 0 null | 0 invalid | all Point
 industry.gpkg     820 rows | EPSG:4326 | 0 null | 0 invalid
 landuse.gpkg   21,170 rows | EPSG:4326 | 0 null | 0 invalid
 
-saari geometries apne region ke bbox ke andar   (0 bahar)
-frp sab positive (min 0.15)      daynight sirf D/N
-saare dates 2025 mein            0 duplicate detections
-lc_class = forest/cropland/urban industry_type mein 7 types
+every geometry within its own region's bbox   (0 outside)
+frp all positive (min 0.15)      daynight only D/N
+all dates within 2025            0 duplicate detections
+lc_class = forest/cropland/urban industry_type has 7 types
 ```
 
-**"Bbox ke andar" wala check khaas hai** — agar longitude/latitude ulte ho gaye
-hote, to points bbox se bahar dikhte. Ye check us bug ko pakad leta.
+**The "within bbox" check is a special one** — if longitude/latitude had
+been swapped, points would fall outside the bbox. This check would have
+caught that bug.
 
-## F3. ⭐ Asli acceptance test — dots sahi jagah baithe hain?
+## F3. ⭐ The real acceptance test — are the dots in the right place?
 
-Ye Phase 1 ka **actual goal** hai. Numbers se check kiya (CRS 32643, metres mein):
+This is Phase 1's **actual goal**. Checked with numbers (CRS 32643, in
+metres):
 
 ```
 JAMNAGAR      n=  827   median dist_to_industry =  1,703 m
@@ -540,16 +550,16 @@ UTTARAKHAND   n= 2475   median dist_to_industry = 18,048 m
 PUNJAB        n= 5113   median dist_to_industry =  5,639 m
 ```
 
-**Kaise padhein:** Jamnagar ke hotspots factory se **1.7 km** door hain,
-Uttarakhand ke **18 km**. Yani Jamnagar wale industrial hain, Uttarakhand
-wale nahi. Bilkul waisa hi jaisa hona chahiye.
+**How to read it:** Jamnagar's hotspots are **1.7 km** from a factory,
+Uttarakhand's are **18 km**. Meaning Jamnagar's are industrial, and
+Uttarakhand's aren't. Exactly as it should be.
 
-**Aur teeno numbers alag hain** — iska matlab CRS sahi hai. (Plan warn karta
-hai: teeno ek jaise aayein to CRS ki galti hai.)
+**And all three numbers differ** — meaning the CRS is correct. (The plan
+warns: if all three came out the same, that would mean a CRS mistake.)
 
-### Ye — pure project ka proof
+### This — the project's proof
 
-Jamnagar ke hotspots ka nearest factory ka **naam**:
+The **name** of the nearest factory to Jamnagar's hotspots:
 
 | Industry | Detections |
 |---|---|
@@ -560,82 +570,86 @@ Jamnagar ke hotspots ka nearest factory ka **naam**:
 | Coastal Gujarat Power Ltd | 7 |
 | Essar Power | 7 |
 
-Ye Phase 2 ka expected result tha, Phase 1 pe hi dikh gaya.
-**Screenshot le lo — PPT mein jayega.**
+This was expected as a Phase 2 result, and it already showed up in Phase 1.
+**Take a screenshot — it goes in the PPT.**
 
 ## F4. Visual check — 3 preview maps
 
-`preview_map.py` banaya (QGIS ka wait na karna pade). `outputs/` mein 3 PNG:
+Built `preview_map.py` (so there's no need to wait for QGIS). 3 PNGs in
+`outputs/`:
 
-- **Jamnagar ✅** — bade laal industry blob pe dots ka ghana jhund. Wo Reliance
-  refinery hai
-- **Uttarakhand ✅** — textbook. Lagbhag saare 2,475 dots hare forest polygons
-  ke andar
-- **Punjab ⚠️** — dots poore ilaake pe chhaye hue, par peele cropland polygons
-  dhoondhne pe bhi nahi milte (neeche section G dekho)
+- **Jamnagar ✅** — a dense cluster of dots over a big red industry blob.
+  That's the Reliance refinery
+- **Uttarakhand ✅** — textbook. Nearly all 2,475 dots sit inside green
+  forest polygons
+- **Punjab ⚠️** — dots spread over the entire area, but even looking for
+  yellow cropland polygons finds hardly any (see Section G below)
 
 ## F5. Environment hygiene
 
 ```
-PASS  .env chmod 600, gitignored, .env.example mein sirf placeholder
-PASS  saare 5 scripts bina error import ho jaate hain
-PASS  venv mein 75 packages
-WARN  git repo abhi nahi hai
+PASS  .env chmod 600, gitignored, .env.example has only a placeholder
+PASS  all 5 scripts import without error
+PASS  75 packages in venv
+WARN  not a git repo yet
 ```
 
-**Ek fix:** `requirements.txt` mein koi version pinned nahi tha. Doosre laptop
-pe alag version aa sakta tha (Day 6 ka checkpoint yahi hai).
-`requirements.lock.txt` bana diya — exact 75 versions.
+**One fix:** `requirements.txt` had no versions pinned. A different laptop
+could get different versions (this is exactly the Day 6 checkpoint).
+Created `requirements.lock.txt` — exact 75 versions.
 
 ---
 
-# Part G — ⚠️ Ek risk jo Phase 3 pe problem karega
+# Part G — ⚠️ A risk that will cause problems in Phase 3
 
-## Punjab mein cropland polygons hain hi nahi
+## Punjab has almost no cropland polygons
 
-Notice karo Punjab mein land cover **99% "unknown"** nikla. Investigate kiya:
+Notice that Punjab's land cover came out **99% "unknown"**. Investigated
+it:
 
 ```
-Punjab bbox ka kitna area OSM cropland polygons se covered:  1.3%
+How much of Punjab's bbox area is covered by OSM cropland polygons: 1.3%
 
-Punjab hotspots ka nearest khet se distance:
+Distance from Punjab's hotspots to the nearest farmland:
   median  12,320 m
-  1 km ke andar :  2%
-  5 km ke andar : 16%
+  within 1 km :  2%
+  within 5 km : 16%
 
-5,113 hotspots kis land cover pe baithe hain:
-  KUCH NAHI (OSM pe mapped hi nahi)    5,067   <- 99.1%
+What land cover do the 5,113 hotspots sit on:
+  NOTHING (not mapped on OSM at all)    5,067   <- 99.1%
   urban                                    37
-  cropland                                  5   <- PAANCH. 5,113 mein se.
+  cropland                                  5   <- FIVE. Out of 5,113.
   forest                                    4
 ```
 
-**Matlab:** OSM pe Punjab ke khet mapped hi nahi hain. India mein farmland
-tagging bahut kam hai — log sadak aur building to map karte hain, khet nahi.
+**Meaning:** Punjab's farmland simply isn't mapped on OSM. Farmland
+tagging is very sparse across India — people map roads and buildings, not
+fields.
 
-## Ye kyun problem hai
+## Why this is a problem
 
-Phase 3 ka AGRI_BURN rule ye hai:
+Phase 3's AGRI_BURN rule is:
 ```
 lc_class == "cropland"  AND  dist_to_industry_m > 3000  AND ...
 ```
 
-Ye rule **kabhi fire hi nahi karega**. Punjab ke 5,113 hotspots
-(pure dataset ka **61%**) UNSURE reh jayenge.
+This rule **will never fire.** Punjab's 5,113 hotspots (**61%** of the
+entire dataset) would be left as UNSURE.
 
-### QGIS mein aankhon se bhi dikh gaya
+### Also visible with the naked eye in QGIS
 
-Punjab ko QGIS mein basemap ke saath khola to poora bbox dots se bhara mila —
-5,113 detections, ek-saman chhaye hue — aur peele cropland polygons dhoondhne
-pe bhi nahi milte. Screenshot slide 9 ke liye rakh liya.
+Opening Punjab in QGIS with a basemap showed the whole bbox filled with
+dots — 5,113 detections, spread evenly — and searching for yellow cropland
+polygons found almost nothing. Kept the screenshot for slide 9.
 
-**Ek baat presentation mein honestly bata dena:** dots ka tez chaukor kinaara
-asli nahi hai, wo hamara bbox hai. Parali poore Punjab mein jalti hai, hamari
-chuni hui chaukor pe rukti nahi. Judges ye poochenge — pehle hi bol dena behtar.
+**One thing to say honestly in the presentation:** the sharp square edge
+around the dots isn't real, it's our bbox. Crop burning happens across all
+of Punjab, not just within our chosen rectangle. Judges will ask about
+this — better to say it upfront.
 
-## 🔴 Aur ek finding — burning season expected se ulta nikla
+## 🔴 One more finding — the burning season came out backwards from expected
 
-Punjab ke detections mahine ke hisaab se:
+Punjab's detections by month:
 
 ```
   1     32   0.6%
@@ -648,67 +662,71 @@ Punjab ke detections mahine ke hisaab se:
  11    509  10.0%  #####
 ```
 
-**May akela 77% hai. Oct+Nov milkar sirf 14%.**
+**May alone is 77%. Oct+Nov together are only 14%.**
 
-Ye ulta lagta hai kyunki news mein hamesha Oct-Nov ki parali aur Delhi ke smog
-ki baat hoti hai. Par Punjab mein **do** burning season hote hain:
+This looks backwards because the news always talks about the Oct-Nov
+stubble burning and Delhi's smog. But Punjab has **two** burning seasons:
 
-- **April-May** — gehun (wheat) ki katai ke baad
-- **Oct-Nov** — dhaan (paddy) ki katai ke baad  ← ye famous wala
+- **April-May** — after the wheat harvest
+- **Oct-Nov** — after the paddy (rice) harvest  ← the famous one
 
-2025 mein gehun wala season kahin bada tha.
+In 2025, the wheat-season burning was much bigger.
 
-### Verify kiya ki ye asli agri signal hai, artifact nahi
+### Verified this is a real agri signal, not an artifact
 
-| | May (gehun) | Oct-Nov (dhaan) |
+| | May (wheat) | Oct-Nov (paddy) |
 |---|---|---|
 | detections | 3,940 | 712 |
-| kitne alag din | 30 (poora mahina) | — |
+| distinct days | 30 (the whole month) | — |
 | **night detections** | **2%** | **3%** |
 | FRP median | 5.5 MW | 4.1 MW |
 
-Peak May 11-18 pe, ek din mein 458 detections. Classic agricultural burning
-signature — **din mein hoti hai** aur FRP chhota hota hai.
+At the May 11-18 peak, 458 detections in a single day. A classic
+agricultural burning signature — **happens during the day** and FRP stays
+low.
 
-### Isse do faayde
+### Two benefits from this
 
-**1. Plan ka month rule already sahi hai.** Plan mein `month in (4, 5, 10, 11)`
-likha hai — dono season cover ho rahe hain. Agar sirf 10, 11 hota to **77%
-data chhoot jata**.
+**1. The plan's month rule is already correct.** The plan already says
+`month in (4, 5, 10, 11)` — both seasons are covered. If it had been just
+10, 11, **77% of the data would have been missed.**
 
-**2. `night_ratio` bahut strong feature hai.** Agri burning 2% raat mein hoti
-hai. Refinery ka flare 24 ghante jalta hai — uska night_ratio ~50% hoga.
-Phase 2 mein ye feature dono classes ko alag karne mein sabse kaam aayega.
+**2. `night_ratio` is a very strong feature.** Agri burning happens at
+night only 2% of the time. A refinery's flare burns 24 hours a day —
+its night_ratio would be ~50%. In Phase 2 this feature will be the single
+most useful thing for telling the two classes apart.
 
-## Phase 3 pe teen options honge
+## There will be three options at Phase 3
 
-1. **Rule badlo (recommended)** — `lc_class == "cropland"` hatao, uski jagah
-   "not forest + not near industry + episodic + month in (4,5,10,11) +
-   night_ratio kam" use karo.
+1. **Change the rule (recommended)** — drop `lc_class == "cropland"`, use
+   instead "not forest + not near industry + episodic + month in
+   (4,5,10,11) + low night_ratio".
 
-   Upar wale seasonality analysis se pata chala ki ye akela hi kaam kar
-   jayega: Punjab ke 93% detections in mahinon mein hain, aur 97% din ke
-   hain. Dono milkar bahut strong signal hain — cropland polygon ki
-   zaroorat hi nahi
-2. **ESA WorldCover raster** laao — 10 m ka global landcover, OSM se kahin
-   behtar coverage. Thoda extra kaam
-3. **VLM step pe zyada bharosa** — satellite image mein khet saaf dikhte hain
+   The seasonality analysis above shows this alone will work: 93% of
+   Punjab's detections fall in these months, and 97% are during the day.
+   Together these two are a very strong signal — no need for a cropland
+   polygon at all
+2. **Bring in ESA WorldCover raster** — a 10 m global landcover dataset,
+   with far better coverage than OSM. A bit of extra work
+3. **Lean more on the VLM step** — farmland is clearly visible in a
+   satellite image
 
-## Ye actually achhi baat hai
+## This is actually a good thing
 
-Plan khud kehta hai slide 9 (Limitations) tumhe alag dikhayegi. "OSM gaps" ka
-ye ek **concrete, numbers-backed** udaharan hai — 1.3% coverage, aur uska
-visual proof `preview_punjab.png` mein.
+The plan itself says slide 9 (Limitations) will set you apart. This is a
+**concrete, numbers-backed** example of "OSM gaps" — 1.3% coverage, with
+visual proof in `preview_punjab.png`.
 
-Zyadatar teams sirf accuracy dikhati hain. Ye tumhe alag dikhayega.
+Most teams only show accuracy. This will set you apart.
 
-**Phase 1 ke liye ye blocker nahi hai** — polygons extract ho gaye, kaam ho gaya.
+**This isn't a blocker for Phase 1** — the polygons were extracted, the
+job's done.
 
 ---
 
-# Part H — Files ab kya hain
+# Part H — What the files look like now
 
-| File | Size | Kya hai |
+| File | Size | What it is |
 |---|---|---|
 | `data/processed/hotspots.gpkg` | 1.7 MB | 8,415 points, 17 columns |
 | `data/processed/industry.gpkg` | 0.4 MB | 820 polygons — osm_id, name, industry_type, region |
@@ -719,15 +737,15 @@ Zyadatar teams sirf accuracy dikhati hain. Ye tumhe alag dikhayega.
 
 ## Code
 
-| File | Lines | Kaam |
+| File | Lines | Job |
 |---|---|---|
-| `src/config.py` | 70 | saari settings |
+| `src/config.py` | 70 | all settings |
 | `src/step1_download.py` | 246 | FIRMS download |
 | `src/step2_context.py` | 328 | OSM polygons |
 | `src/preview_map.py` | 68 | visual check |
-| `src/check_region.py` | 156 | naya region add karne se pehle |
+| `src/check_region.py` | 156 | before adding a new region |
 
-## Chalane ka tareeka
+## How to run it
 
 ```bash
 cd /home/vank/SIH
@@ -740,79 +758,80 @@ python src/preview_map.py        # 3 sec
 
 ---
 
-# Part I — 🔴 Ab tumhe ye karna hai
+# Part I — 🔴 What you need to do now
 
-## I1. Screenshot sambhalo (2 min)
+## I1. Save screenshots (2 min)
 
-`outputs/preview_punjab.png` PPT ke slide 9 ke liye rakh lo.
-`outputs/preview_jamnagar.png` slide 1 ke liye.
+Keep `outputs/preview_punjab.png` for the PPT's slide 9.
+Keep `outputs/preview_jamnagar.png` for slide 1.
 
-## I2. QGIS install karo (optional, ~10 min)
+## I2. Install QGIS (optional, ~10 min)
 
 ```bash
 sudo apt install qgis qgis-plugin-grass
 ```
 
-Phase 1 ke liye **zaroori nahi** — check preview PNGs se ho chuka hai.
-Par Phase 2 ke baad clusters pe click karke "ye kaunsi factory hai" dekhna
-QGIS mein bahut aasan hai.
+**Not necessary** for Phase 1 — the preview PNGs already cover the check.
+But after Phase 2, clicking on clusters to see "which factory is this" is
+much easier in QGIS.
 
-## I3. Git init — ek decision (tumhara)
+## I3. Git init — a decision (yours to make)
 
-Repo abhi bana hi nahi hai. Day 6 ka "doosre laptop pe clone karke chalao"
-iske bina possible nahi. `.gitignore` ready hai.
+The repo doesn't exist yet. Day 6's "clone onto another laptop and run it"
+isn't possible without it. `.gitignore` is ready.
 
-## I4. Phase 2 se pehle 20 min padhna — ye zaroori hai
+## I4. 20 minutes of reading before Phase 2 — necessary
 
-Phase 2 ka **pura** code teen cheezon se bana hai:
+Phase 2's **entire** code is built from three things:
 
-**1. `sjoin_nearest`** — har hotspot ke liye sabse nazdeeki factory dhoondhta
-hai aur doori bhar deta hai. Tumhara sabse important feature yahi banata hai
+**1. `sjoin_nearest`** — finds the nearest factory for every hotspot and
+fills in the distance. This builds your single most important feature
 
-**2. `sjoin` with `predicate="within"`** — point kis polygon ke **andar** hai.
-Isse `lc_class` (forest/cropland/urban) aata hai
+**2. `sjoin` with `predicate="within"`** — which polygon a point is
+**inside**. This is what gives us `lc_class` (forest/cropland/urban)
 https://geopandas.org/en/stable/docs/user_guide/mergingdata.html
 
-**3. DBSCAN ke do parameters** — bas itna:
-- `eps=500` → 500 metre ke andar ke points ek hi source maane jayenge
-- `min_samples=3` → kam se kam 3 points ho to hi cluster banega
+**3. DBSCAN's two parameters** — just this much:
+- `eps=500` → points within 500 metres of each other are treated as one
+  source
+- `min_samples=3` → at least 3 points are needed to form a cluster
 
-Ye isliye kaam karta hai kyunki refinery ka flare **hamesha wahi jagah** pe
-jalta hai, jabki jungle ki aag ghoomti hai.
+This works because a refinery's flare **always burns at the same spot**,
+while a forest fire moves around.
 
-**Yaad rakhna:** ye saare operations `to_crs(32643)` ke **baad** hote hain.
-4326 mein `eps=500` ka matlab "500 degree" hoga — bekaar.
+**Remember:** all of this happens **after** `to_crs(32643)`. In 4326,
+`eps=500` would mean "500 degrees" — useless.
 
 ---
 
-# Part J — Naya region kaise add karein
+# Part J — How to add a new region
 
-Pipeline sirf in 3 jagah ke liye nahi hai — region ke naam kahin bhi hardcoded
-nahi hain, sab kuch `config.REGIONS` pe loop karta hai.
+The pipeline isn't built for just these 3 places — region names aren't
+hardcoded anywhere, everything loops over `config.REGIONS`.
 
-**Pehle check chalao:**
+**First run the check:**
 ```bash
 python src/check_region.py 82.4 22.2 82.9 22.5    # west south east north
 ```
 
-Batata hai: kaunsi zone file chahiye, `CRS_METRES` yahan kitna galat hai,
-aur bbox ulta to nahi.
+It tells you: which zone file is needed, how wrong `CRS_METRES` is there,
+and whether the bbox is flipped.
 
-**Phir `config.py` mein do lines:**
+**Then two lines in `config.py`:**
 ```python
 REGIONS["korba"]    = (82.4, 22.2, 82.9, 22.5)
 REGION_PBF["korba"] = "central-zone-latest.osm.pbf"
 ```
 
-Zone ki pbf download karke `data/raw/` mein rakho, phir step1 aur step2
-dobara chalao. Baaki kuch nahi badalna.
+Download that zone's pbf into `data/raw/`, then rerun step1 and step2.
+Nothing else needs to change.
 
-## Limit 1 — CRS 32643 lagbhag 82°E tak
+## Limit 1 — CRS 32643 is only accurate up to about 82°E
 
-Ye UTM zone 43N hai, center 75°E pe. Jitna door jaoge, distance utni galat.
-1 km ki asli galti (measure ki hui):
+This is UTM zone 43N, centered on 75°E. The further away, the more wrong
+distances become. Actual measured error over 1 km:
 
-| Jagah | Galti |
+| Location | Error |
 |---|---|
 | Punjab (75.8°E) | -0.03% |
 | Mumbai (72.8°E) | +0.03% |
@@ -822,21 +841,21 @@ Ye UTM zone 43N hai, center 75°E pe. Jitna door jaoge, distance utni galat.
 | **Kolkata (88.4°E)** | **+2.35%** |
 | **Assam (92.9°E)** | **+4.02%** |
 
-North/West/Central India ke liye 0.4% se kam — ignore kar do.
-Northeast ke liye `CRS_METRES = 32646` chahiye, warna 1000 m ka rule asal
-mein 1040 m ka ban jayega.
+Under 0.4% for North/West/Central India — safe to ignore. For the
+Northeast, `CRS_METRES = 32646` is needed, otherwise a "1000 m" rule
+actually becomes 1040 m.
 
-## Limit 2 — OSM coverage har jagah barabar nahi
+## Limit 2 — OSM coverage isn't the same everywhere
 
-Punjab wala cropland gap (1.3%) yaad rakho. Isliye step2 har region ka polygon
-count print karta hai aur zero pe **loud warning** deta hai — chup-chaap
-fail nahi hota.
+Remember Punjab's cropland gap (1.3%). That's why step2 prints the polygon
+count for every region and gives a **loud warning** at zero — it never
+fails silently.
 
 ---
 
-# Part K — Phase 2 ke liye ready
+# Part K — Ready for Phase 2
 
-## Inputs maujood hain ✅
+## Inputs are in place ✅
 
 ```
 hotspots.gpkg   ✅  8,415 points
@@ -844,36 +863,37 @@ industry.gpkg   ✅    820 polygons
 landuse.gpkg    ✅ 21,170 polygons
 ```
 
-## Dono spatial joins test kar liye — chal rahe hain
+## Both spatial joins tested — working
 
 ```
 sjoin_nearest(hotspots, industry)  -> 8,418 rows
 sjoin(hotspots, landuse, within)   -> 8,417 rows
 ```
 
-## ⚠️ Phase 2 pe ek gotcha (abhi pakda)
+## ⚠️ A gotcha for Phase 2 (caught now)
 
-Dono joins input se **zyada rows** de rahe hain — 8,415 se 8,418 / 8,417.
+Both joins are producing **more rows** than the input — 8,415 becomes
+8,418 / 8,417.
 
-**Wajah:** ek hotspot do overlapping polygons ke andar ho sakta hai (jaise
-forest aur urban dono), aur `sjoin_nearest` mein distance tie ho sakti hai.
-Aise mein join **do rows** bana deta hai.
+**Reason:** a hotspot can sit inside two overlapping polygons (like both
+forest and urban), and `sjoin_nearest` can have a distance tie. In that
+case a join produces **two rows**.
 
-**Agar dedup nahi kiya** to features file mein duplicate hotspots aa jayenge,
-aur baad mein saare counts galat honge — aur ye chup-chaap hoga, koi error
-nahi aayega.
+**If this isn't deduplicated**, the features file will end up with
+duplicate hotspots, and every count downstream will be wrong — and this
+will happen silently, with no error at all.
 
-**Phase 2A likhte waqt join ke baad ye lagana hai:**
+**This needs to be added right after the join, when writing Phase 2A:**
 ```python
 joined = joined[~joined.index.duplicated()]
 ```
 
-## Phase 2 mein kya banega
+## What Phase 2 will build
 
 ```
-step2_context.py part 2   -> features.gpkg    (har hotspot pe distance + landcover)
+step2_context.py part 2   -> features.gpkg    (distance + landcover for every hotspot)
 step3_persistence.py      -> sources.gpkg     (DBSCAN clusters + PERSISTENT/EPISODIC)
 ```
 
-Aur wahin pe "Reliance Refinery — 198 detections — PERSISTENT" wali table
-banegi, jo PPT mein jayegi.
+And that's where the "Reliance Refinery — 198 detections — PERSISTENT"
+table will get built, which goes into the PPT.

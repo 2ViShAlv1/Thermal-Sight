@@ -17,7 +17,7 @@ thermal detections over five Indian regions and separates industrial heat from
 forest fires and crop-residue burning — using temporal persistence, night-time
 behaviour, land context, and, where the rules fall silent, the satellite image itself.
 
-**88,434 detections → 192 industrial sites to inspect (99.78% reduction)**
+**88,434 detections → 238 industrial sites to inspect (99.73% reduction)**
 
 </div>
 
@@ -40,11 +40,11 @@ ran hotter than their own normal.
 |---|---:|---|
 | Thermal detections ingested | **88,434** | 3 VIIRS satellites, calendar year 2025, 5 regions |
 | Distinct thermal sources | **17,615** | after DBSCAN spatial clustering |
-| Classified as industrial | **192** | the operational inspection list |
-| Volume reduction | **99.78%** | from raw pixels to actionable sites |
-| Forest fire / crop burning | 5,134 / 11,581 | separated, not discarded |
-| Held back for human review | **708** | the model is not allowed to guess here |
-| Recovered by the vision layer | **391** | sources no rule could label |
+| Classified as industrial | **238** | the operational inspection list |
+| Volume reduction | **99.73%** | from raw pixels to actionable sites |
+| Forest fire / crop burning | 5,165 / 11,981 | separated, not discarded |
+| Held back for human review | **231** | the model is not allowed to guess here |
+| Recovered by the vision layer | **868** | sources no rule could label |
 | Anomaly days flagged | **999** across 202 sites | a site ≥3× hotter than its own baseline (peak **63.7×**) |
 
 Every number above is read live from the pipeline outputs committed in this repo —
@@ -63,7 +63,7 @@ Ludhiana paddy field           1 detection  ·   1 day · daytime               
 
 **Persistence** separates a plant from an event: a factory burns all year, a forest
 burns for a fortnight, a field burns for one afternoon. **Night ratio** then separates
-the two that persist — crop burning averages 3% night-time activity across 11,581
+the two that persist — crop burning averages 3% night-time activity across 11,981
 sources, because nobody burns stubble at 2 a.m. Neither signal exists in a single
 detection; both require a year of history, which is why the pipeline clusters first
 and classifies second.
@@ -105,18 +105,18 @@ We report what was measured, including where the system is weak.
 
 | Test | Result | What it proves |
 |---|---:|---|
-| Random 5-fold CV (macro-F1) | **0.963** | the model fits |
-| **Region hold-out** (macro-F1) | **0.948** | it transfers to a region it has never seen — trained on four, tested on the fifth |
-| 45 human-labelled gold sources (accuracy) | **75.6%** | performance against ground truth, not against our own rules |
+| Random 5-fold CV (macro-F1) | **0.917** | the model fits |
+| **Region hold-out** (macro-F1) | **0.914** | it transfers to a region it has never seen — trained on four, tested on the fifth |
+| 159 human-labelled gold sources (accuracy) | **86.8%** | performance against ground truth, not against our own rules |
 | Vision layer vs. gold labels | **81.0%** vs **76.2%** for rules | the image beats the numbers on hard cases (42 of 45 answered) |
 | Vision layer where rules are silent | **100%** (2/2 answered) | it answers where nothing else can |
-| Independent NASA-label model | **88.9%** accuracy, AUC **0.765** | an entirely separate model, trained only on FIRMS-native fields |
+| Independent NASA-label model | **89.5%** accuracy, AUC **0.694** | an entirely separate model, trained only on FIRMS-native fields |
 
 **Why the NASA cross-check exists.** Our rules use OSM proximity, so a model trained on
 rule labels and evaluated on rule labels proves nothing — it is circular. So a second
 model (`src/step7_nasa_model.py`) was trained on NASA's own `type=static` flag using
 *only* raw FIRMS columns (FRP, brightness, scan geometry, day/night), with no map
-feature at all. It agrees with human labels 88.9% of the time. Its own region hold-out
+feature at all. It agrees with human labels 89.5% of the time (133 gold sources; AUC 0.694). Its own region hold-out
 mean F1 is a weak **0.416** — because two of five regions contain almost no static
 detections to learn from. We report that number rather than hide it.
 
@@ -124,17 +124,17 @@ detections to learn from. We report that number rather than hide it.
 
 | Features | Macro-F1 |
 |---|---:|
-| All 20 features | **0.948** |
-| Without land cover | 0.591 |
-| Without land cover + distance | 0.362 |
-| FIRMS only (no geospatial context) | 0.362 |
+| All 23 features | **0.909** |
+| Without land cover | 0.526 |
+| Without land cover + distance | 0.336 |
+| FIRMS only (no geospatial context) | 0.337 |
 
-Top SHAP contributors: `dist_to_industry_m` (2.72), `lc_forest` (1.85), `lc_cropland` (0.80).
+Top SHAP contributors: `dist_to_industry_m` (2.60), `lc_forest` (1.72), `lc_cropland` (0.80).
 
 ### Known limitations
 
-- **The model is not permitted to answer on ambiguous sources.** Measured on them it was only 39% accurate — a coin-toss over three classes. Those 708 sources go to the review queue instead of receiving a confident wrong label.
-- **Gold set is 45 sources**, hand-labelled from imagery. Small, and honest about it.
+- **The model is not permitted to answer on ambiguous sources.** Measured on them it was only 39% accurate — a coin-toss over three classes. Those 231 sources go to the review queue instead of receiving a confident wrong label.
+- **Gold set is 159 sources**, hand-labelled from imagery. Small, and honest about it.
 - **Five regions, one calendar year.** Chosen to cover the three classes (Jamnagar refineries, Kumaon forest, Ludhiana cropland) plus India's two largest thermal clusters by capacity (Korba 24 GW, Singrauli 21 GW, per WRI).
 - **`industry_name` is the *nearest* facility**, which can be 45 km away; the UI only shows a site name within 2 km, so a forest fire is never mislabelled with a power plant's name.
 

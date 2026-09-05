@@ -1,41 +1,41 @@
 # SIH26162 — 7-Day Plan (beginner-friendly)
 
-**Pura project 4 lines mein:**
-1. NASA FIRMS se garam points ka CSV download karo
-2. OSM se pata karo har point ke aas-paas kya hai (factory? jungle? khet?)
-3. Rules + AI se label lagao (industrial / forest / agri)
-4. Model train karke map pe colour ke saath dikhao
+**The whole project in 4 lines:**
+1. Download a CSV of hot points from NASA FIRMS
+2. Use OSM to find out what's around each point (factory? forest? farmland?)
+3. Label with rules + AI (industrial / forest / agri)
+4. Train a model and show it on a map with color
 
-Jab bhi confuse lago, in 4 lines pe wapas aa jana.
+Whenever you feel confused, come back to these 4 lines.
 
 ---
 
-## Do bade changes (jo tumhari life aasan karenge)
+## Two big changes (that will make your life easier)
 
-### 1. Database ab optional hai
+### 1. The database is now optional
 
-Pehle: sab kuch PostGIS mein. Agar Docker atka → poora din barbaad.
+Before: everything in PostGIS. If Docker got stuck → the whole day was wasted.
 
-**Ab:** saara kaam **normal files** pe hoga — CSV aur GeoPackage (`.gpkg`). GeoPackage bas ek file hai jisme map data hota hai, QGIS use seedha khol leta hai.
+**Now:** all the work happens on **normal files** — CSV and GeoPackage (`.gpkg`). A GeoPackage is just a file containing map data, and QGIS opens it directly.
 
-PostGIS ko Day 6 pe last step ki tarah add karenge — ek script jo final tables DB mein daal de. Tab "GIS based storage" wala deliverable bhi tick ho jayega, aur agar Docker na chale to project rukega nahi.
+PostGIS will be added on Day 6 as a final step — a script that loads the final tables into a DB. That way the "GIS based storage" deliverable gets ticked too, and if Docker doesn't work the project won't stall.
 
-**Faayda:** har step ka output ek file hai jo tum QGIS mein khol ke dekh sakte ho. Debugging 10× aasan.
+**Benefit:** every step's output is a file you can open and look at in QGIS. Debugging becomes 10× easier.
 
-### 2. Dashboard ab Streamlit mein
+### 2. The dashboard is now in Streamlit
 
-Pehle: FastAPI backend + alag HTML frontend + fetch calls.
+Before: a FastAPI backend + a separate HTML frontend + fetch calls.
 
-**Ab:** sirf **Streamlit** — ek Python file. Map, filters, charts sab Python mein.
+**Now:** just **Streamlit** — a single Python file. Map, filters, charts, all in Python.
 
 ```python
 import streamlit as st, geopandas as gpd, folium
 from streamlit_folium import st_folium
 ```
 
-Na API, na JavaScript, na CORS errors. Tum Python jaante ho, wahi use karo.
+No API, no JavaScript, no CORS errors. You know Python — use that.
 
-**Trade-off honest:** custom HTML dashboard thoda zyada polished dikhta. Par Streamlit app **chalta hai**, aur chalta hua demo hamesha na-chalne wale fancy demo se better hai.
+**Being honest about the trade-off:** a custom HTML dashboard looks a bit more polished. But a Streamlit app that **works** always beats a fancy demo that doesn't.
 
 ---
 
@@ -46,37 +46,37 @@ Python + Pandas + GeoPandas     — data
 Scikit-learn + XGBoost          — model
 Anthropic API                   — VLM verification
 Streamlit                       — dashboard
-QGIS                            — dekhne ke liye
+QGIS                            — for viewing
 PostGIS (Day 6, optional)       — final storage
 ```
 
-Bas. 6 cheezein. Docker sirf ek din chahiye, wo bhi optional.
+That's it. 6 things. Docker is needed for only one day, and even that's optional.
 
-## Scope (locked, isko mat badalna)
+## Scope (locked, don't change this)
 
 **3 regions:**
-| Region | Bbox (W, S, E, N) | Kya milega |
+| Region | Bbox (W, S, E, N) | What it gives us |
 |---|---|---|
 | Jamnagar, Gujarat | 69.4, 21.8, 70.6, 22.9 | Industrial (refineries) |
 | Kumaon, Uttarakhand | 78.8, 29.2, 80.2, 30.4 | Forest fires |
 | Ludhiana, Punjab | 75.2, 30.2, 76.4, 31.0 | Agri burning |
 
-⚠️ FIRMS API mein order **west, south, east, north** hota hai — yani longitude pehle. Upar wale numbers usi order mein likhe hain, seedha copy kar lena.
+⚠️ The FIRMS API order is **west, south, east, north** — meaning longitude first. The numbers above are already in that order, just copy them directly.
 
-**Time:** 2025 ka poora saal
+**Time:** all of 2025
 **3 classes:** `INDUSTRIAL`, `FOREST_FIRE`, `AGRI_BURN`
-*(anomaly detection ek alag flag hoga, class nahi — usse cheezein simple rehti hain)*
+*(anomaly detection will be a separate flag, not a class — this keeps things simple)*
 
 ---
 
-## Folder structure (aisa hi rakhna)
+## Folder structure (keep it exactly like this)
 
 ```
 sih26162/
   data/
-    raw/          # downloaded CSVs aur pbf
-    processed/    # tumhare banaye .gpkg files
-    chips/        # satellite images (VLM ke liye)
+    raw/          # downloaded CSVs and pbf
+    processed/    # your generated .gpkg files
+    chips/        # satellite images (for VLM)
   src/
     step1_download.py
     step2_context.py
@@ -91,13 +91,13 @@ sih26162/
   README.md
 ```
 
-Har file ka ek hi kaam hai. Ek file ka output agli file ka input. **Har step ke baad ek `.gpkg` file banti hai jo tum QGIS mein khol sakte ho.**
+Each file does exactly one job. One file's output is the next file's input. **Every step produces a `.gpkg` file you can open in QGIS.**
 
 ---
 
 # Day 1 — Data download
 
-**Aaj sirf itna: FIRMS ka CSV aur OSM ke polygons mil jayein.**
+**Today's only goal: get FIRMS's CSV and OSM's polygons.**
 
 ### Prompt 1A
 
@@ -145,13 +145,13 @@ Create src/step1_download.py:
 Read FIRMS_MAP_KEY from a .env file.
 ```
 
-**Chalne ke baad khud check karo:**
-1. `data/processed/hotspots.gpkg` bana? Size 0 to nahi?
-2. QGIS kholo → drag karke `hotspots.gpkg` daalo
-3. Basemap add karo: Browser panel → XYZ Tiles → OpenStreetMap (double click)
-4. Jamnagar pe zoom karo → refinery ke upar dots ka ghana jhund dikhna chahiye
+**Check for yourself after running it:**
+1. Was `data/processed/hotspots.gpkg` created? Not size 0?
+2. Open QGIS → drag `hotspots.gpkg` in
+3. Add a basemap: Browser panel → XYZ Tiles → OpenStreetMap (double-click)
+4. Zoom into Jamnagar → you should see a dense cluster of dots over the refinery
 
-**Agar dots galat jagah (samundar mein, ya duniya ke doosre kone mein):** bbox ka order ulta ho gaya hai. Longitude pehle hona chahiye.
+**If the dots are in the wrong place (in the ocean, or on the other side of the world):** the bbox order got flipped. Longitude should come first.
 
 ### Prompt 1B
 
@@ -187,17 +187,17 @@ We already have data/raw/india-latest.osm.pbf
    If a region has zero industry polygons, print a loud warning.
 ```
 
-**Day 1 done tab jab:** QGIS mein teeno files ek saath dikhein, aur Jamnagar ke dots industry polygons ke upar baithe hon, Uttarakhand ke dots forest polygons ke andar.
+**Day 1 is done when:** all three files show up together in QGIS, correctly, with Jamnagar's dots sitting on industry polygons and Uttarakhand's dots inside forest polygons.
 
-**Ye dikh gaya = tumhara pura idea confirm ho gaya.** Screenshot le lo.
+**Seeing this = your whole idea is confirmed.** Take a screenshot.
 
 ---
 
 # Day 2 — Context features + Persistence ⭐
 
-**Sabse important din. Yahi tumhara "innovation" hai.**
+**The most important day. This is your "innovation".**
 
-### Prompt 2A (subah, ~1 ghanta)
+### Prompt 2A (morning, ~1 hour)
 
 ```
 Day 2A: add context to every hotspot.
@@ -230,14 +230,14 @@ src/step2_context.py — part 2:
    dist_to_industry_m and the count of each lc_class.
 ```
 
-**Check karo — ye numbers aane chahiye:**
-- Jamnagar: median distance chhoti (sau-do sau metre)
-- Uttarakhand: median distance badi (kai kilometre), `lc_class` mostly forest
+**Check — these are the numbers you should see:**
+- Jamnagar: small median distance (a few hundred metres)
+- Uttarakhand: large median distance (several kilometres), `lc_class` mostly forest
 - Punjab: `lc_class` mostly cropland
 
-**Agar teeno regions ke numbers ek jaise hain → CRS ki galti hai. Yahin ruk ke fix karo, aage mat badho.**
+**If all three regions come out with similar numbers → the CRS is wrong. Stop here and fix it, don't move on.**
 
-### Prompt 2B (dopahar) — project ka dil
+### Prompt 2B (afternoon) — the heart of the project
 
 ```
 Day 2B: find persistent thermal sources.
@@ -278,15 +278,15 @@ src/step3_persistence.py:
    industry_name, n_detections, lifespan_days, night_ratio.
 ```
 
-**Ye check sabse zaroori hai:** top 20 ki list mein **asli refinery/plant ke naam** dikh rahe hain? Agar haan — tumhara project kaam kar raha hai. Screenshot lo, PPT mein jayega.
+**This is the most important check:** does the top-20 list show **real refinery/plant names**? If yes — your project is working. Take a screenshot, it'll go in the PPT.
 
-Uttarakhand ke clusters EPISODIC hone chahiye, Jamnagar ke PERSISTENT.
+Uttarakhand's clusters should come out EPISODIC, Jamnagar's PERSISTENT.
 
 ---
 
 # Day 3 — Labels
 
-### Prompt 3A (subah, ~1 ghanta)
+### Prompt 3A (morning, ~1 hour)
 
 ```
 Day 3A: create labels using simple rules.
@@ -321,7 +321,7 @@ Save data/processed/sources_labelled.gpkg
 Print how many got each label and how many need review.
 ```
 
-### Prompt 3B (background mein chhod do)
+### Prompt 3B (leave it running in the background)
 
 ```
 Day 3B: use a vision AI to check the confusing cases.
@@ -354,7 +354,7 @@ For sources where needs_review is True (take at most 100):
    a crash does not lose work.
 ```
 
-### Prompt 3C (dopahar, ~30 min)
+### Prompt 3C (afternoon, ~30 min)
 
 ```
 Day 3C: a small tool so I can label 50 sources by hand.
@@ -373,11 +373,11 @@ Pick 50 sources spread across the 3 regions and across rule labels.
 Save answers to data/processed/gold_labels.csv
 ```
 
-### 🔴 Day 3 shaam — ye tum karo (~1 ghanta)
+### 🔴 Day 3 evening — you do this (~1 hour)
 
-50 sources, har ek pe ~1 minute. Chai leke baitho.
+50 sources, ~1 minute each. Grab a cup of tea and sit down.
 
-**Skip mat karna.** Jo 3-4 galtiyan tum khud pakdoge — jaise koi plant OSM pe missing hai, ya koi jagah dono jaisi lagti hai — wahi tumhari best slide banegi aur finale mein tumhe bachayegi.
+**Don't skip this.** The 3-4 mistakes you'll catch yourself — like a plant missing from OSM, or a spot that looks like it could be either thing — are exactly what will make your best slide and save you in the finals.
 
 ---
 
@@ -422,7 +422,7 @@ src/step5_train.py:
      reduction percentage
 ```
 
-**Kya expect karo:** gold-set F1 **0.75–0.85** normal hai. Agar 0.97 aaya, kahin galti hai (shayad lat/long feature mein reh gaya).
+**What to expect:** a gold-set F1 of **0.75–0.85** is normal. If it comes out at 0.97, something's wrong somewhere (probably a lat/long feature leaking in).
 
 ---
 
@@ -460,21 +460,21 @@ Then add, in this order:
 Keep it under 300 lines. Comment the sections. Simple beats clever.
 ```
 
-**Time kam pade to priority:** before/after toggle → layers → popups → charts → download.
+**If short on time, this is the priority order:** before/after toggle → layers → popups → charts → download.
 
 ---
 
-# Day 6 — Jodna aur theek karna
+# Day 6 — Wiring it together and fixing bugs
 
-**Naya kuch mat banao. Poora din integration ke liye hai.**
+**Don't build anything new. The whole day is for integration.**
 
-- [ ] Saare steps ek baar shuru se end tak chala ke dekho
-- [ ] `run_all.py` banao jo step1 se step5 tak sab chala de
-- [ ] Streamlit app kholo, har filter click karke dekho — kuch crash to nahi karta
-- [ ] **PostGIS wala step (deliverable ke liye):** ek chhota `src/step6_postgis.py` jo final `.gpkg` files ko PostGIS mein daal de (`geopandas.to_postgis`). Docker ek command: `docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgis/postgis:16-3.4`. Agar na chale, koi baat nahi — GeoPackage bhi ek GIS format hai, PPT mein wahi likh dena
-- [ ] README likho: kya banaya, kaise chalana hai, screenshots
-- [ ] Saare screenshots `outputs/` mein collect karo
-- [ ] **Doosre laptop pe clone karke chala ke dekho** — demo ke din "mere laptop pe to chal raha tha" sabse bada dar hai
+- [ ] Run every step from scratch, start to end, once
+- [ ] Build `run_all.py` that runs step1 through step5
+- [ ] Open the Streamlit app, click through every filter — make sure nothing crashes
+- [ ] **The PostGIS step (for the deliverable):** a small `src/step6_postgis.py` that loads the final `.gpkg` files into PostGIS (`geopandas.to_postgis`). One Docker command: `docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgis/postgis:16-3.4`. If it doesn't work, that's fine — GeoPackage is also a GIS format, just say so in the PPT
+- [ ] Write the README: what was built, how to run it, screenshots
+- [ ] Collect all screenshots into `outputs/`
+- [ ] **Clone onto a different laptop and run it there** — "it worked on my laptop" is the biggest fear on demo day
 
 ---
 
@@ -484,90 +484,90 @@ Keep it under 300 lines. Comment the sections. Simple beats clever.
 
 | # | Slide |
 |---|---|
-| 1 | Problem — raw FIRMS map ka screenshot, hazaaron ek jaise dots |
-| 2 | Solution — simple architecture diagram (4 boxes) |
+| 1 | Problem — screenshot of the raw FIRMS map, thousands of identical-looking dots |
+| 2 | Solution — a simple architecture diagram (4 boxes) |
 | 3 | Approach — context → persistence → classification |
-| 4 | **Labelling — kaise labels banaye** (rules + VLM + 50 human checks) |
-| 5 | **Evaluation — teeno numbers** aur wo kyun girte hain |
-| 6 | Results — confusion matrix, SHAP, reduction number |
+| 4 | **Labelling — how the labels were made** (rules + VLM + 50 human checks) |
+| 5 | **Evaluation — all three numbers** and why they drop |
+| 6 | Results — confusion matrix, SHAP, the reduction number |
 | 7 | Dashboard — before/after screenshot |
 | 8 | Impact — NTRO, critical infrastructure monitoring |
-| 9 | **Limitations** — OSM gaps, coal fires, cloud cover, aage kya |
+| 9 | **Limitations** — OSM gaps, coal fires, cloud cover, what's next |
 | 10 | Tech stack + team |
 
-**Slide 4, 5, 9 hi tumhe alag dikhayenge.** Zyadatar teams inhe skip kar deti hain aur sirf accuracy dikhati hain.
+**Slides 4, 5, and 9 are what will set you apart.** Most teams skip these and only show accuracy.
 
 ### Video (3 min)
-Problem (20s) → before/after toggle (30s) → Jamnagar refinery click (40s) → anomaly (30s) → Uttarakhand forest fire (25s) → export (15s)
+Problem (20s) → before/after toggle (30s) → clicking the Jamnagar refinery (40s) → anomaly (30s) → Uttarakhand forest fire (25s) → export (15s)
 
 ---
 
-## Download list — sirf 2 cheezein
+## Download list — only 2 things
 
-| Kya | Link |
+| What | Link |
 |---|---|
-| FIRMS MAP_KEY | https://firms.modaps.eosdis.nasa.gov/api/map_key/ ✅ mil gaya |
+| FIRMS MAP_KEY | https://firms.modaps.eosdis.nasa.gov/api/map_key/ ✅ obtained |
 | OSM India pbf | https://download.geofabrik.de/asia/india.html |
 
-FIRMS ka data script khud download karega. Satellite images runtime pe aa jaati hain. Bas.
+FIRMS data downloads itself via the script. Satellite images come in at runtime. That's all.
 
 ---
 
-## Padhna — total 1 ghanta
+## Reading — 1 hour total
 
-**Day 1 se pehle (30 min):**
+**Before Day 1 (30 min):**
 
-**CRS — sabse zaroori 10 minute**
+**CRS — the most essential 10 minutes**
 https://geopandas.org/en/stable/docs/user_guide/projections.html
-Bas itna: EPSG:4326 = degrees (map dikhane ke liye), EPSG:32643 = metres (distance ke liye). Distance nikalne se pehle hamesha `to_crs(32643)`.
+Just this much: EPSG:4326 = degrees (for displaying on a map), EPSG:32643 = metres (for distance). Always `to_crs(32643)` before computing distance.
 
-**FIRMS ka data kya hai — 20 min**
+**What FIRMS data actually is — 20 min**
 https://www.earthdata.nasa.gov/data/tools/firms/faq
-`bright_ti4`, `frp`, `confidence`, `daynight` ka matlab. Finale mein ye pooche jayenge.
+What `bright_ti4`, `frp`, `confidence`, `daynight` mean. These will come up in the finals.
 
-**Day 2 se pehle (20 min):**
-- GeoPandas ke `sjoin_nearest` aur `sjoin` docs — tumhara pura feature engineering yahi 2 functions hain
-- DBSCAN — sirf `eps` aur `min_samples` ka matlab samajh lo
+**Before Day 2 (20 min):**
+- GeoPandas's `sjoin_nearest` and `sjoin` docs — your entire feature engineering is just these 2 functions
+- DBSCAN — just understand what `eps` and `min_samples` mean
 
-**Day 4 se pehle (10 min):**
-- Spatial leakage — https://www.mdpi.com/2624-795X/7/3/90 — sirf Abstract padho. Isse tumhari slide 5 banegi
+**Before Day 4 (10 min):**
+- Spatial leakage — https://www.mdpi.com/2624-795X/7/3/90 — just read the Abstract. This is what will build your slide 5
 
-**QGIS — 15 min:** file drag karke daalna, XYZ Tiles se OpenStreetMap basemap add karna, attribute table dekhna, ek column ke hisaab se colour karna. Bas itna kaafi hai.
+**QGIS — 15 min:** dragging a file in, adding an OpenStreetMap basemap via XYZ Tiles, looking at the attribute table, coloring by a column. That's enough.
 
 ---
 
-## Har din ka checkpoint
+## Each day's checkpoint
 
-| Din | Ho gaya jab |
+| Day | Done when |
 |---|---|
-| 1 | QGIS mein teeno layers sahi jagah dikh rahe |
-| 2 | Top persistent sources mein asli plant ke naam ⭐ |
+| 1 | All three layers show up correctly in QGIS |
+| 2 | Real plant names appear among the top persistent sources ⭐ |
 | 3 | 3 classes labelled + 50 gold labels |
-| 4 | Teen evaluation numbers + confusion matrix |
-| 5 | Before/after toggle chal raha |
-| 6 | Doosre laptop pe chal gaya |
+| 4 | Three evaluation numbers + confusion matrix |
+| 5 | Before/after toggle working |
+| 6 | Runs on a different laptop |
 | 7 | PPT + video ready |
 
 ---
 
-## Jab atak jao — ye karo
+## When you get stuck — do this
 
-**Claude Code ka code samajh na aaye:**
-Usi se pooch lo — *"is file ko line by line samjhao, main 3rd year student hun"*. Wo simple bhasha mein explain kar dega. Har din kam se kam ek file poori padhna, taaki finale mein apna code explain kar sako.
+**Can't understand Claude Code's code:**
+Just ask it — *"explain this file line by line, I'm a 3rd year student"*. It'll explain it in plain language. Read at least one whole file every day, so you can explain your own code in the finals.
 
-**Kuch chal nahi raha:**
-Sabse pehle QGIS mein output kholo. 80% bugs wahin aankhon se dikh jaate hain.
+**Something isn't working:**
+First, open the output in QGIS. 80% of bugs become visible to the eye right there.
 
-**Kisi din piche pad jao:**
-Us din ka scope kaato, agle din pe mat kheencho. Ek chhota chalta hua system, bade adhoore system se hamesha better hai.
+**Falling behind on some day:**
+Cut that day's scope, don't drag it into the next day. A small working system always beats a large, incomplete one.
 
-**Zyada complex lagne lage:**
-Upar wali 4 lines yaad karo. Download → context → label → classify. Baaki sab uske details hain.
+**Starting to feel too complex:**
+Recall the 4 lines above. Download → context → label → classify. Everything else is just details on top of that.
 
 ---
 
-## Aakhri baat
+## One last thing
 
-Ye plan jaan-boojh kar boring rakha hai. Isme koi aisi cheez nahi hai jo tum debug na kar sako ya explain na kar sako. Yahi 3rd year mein hona chahiye.
+This plan is deliberately kept boring. There's nothing in it you can't debug or explain yourself. That's exactly how a 3rd-year project should be.
 
-Tumhara asli edge fancy tech mein nahi hai — wo **Day 2 ke persistence idea** mein aur **Day 3 ki honest labelling** mein hai. Ye do cheezein zyadatar teams nahi karengi. Baaki sab bas plumbing hai, aur plumbing ko simple hi rehna chahiye.
+Your real edge isn't in fancy tech — it's in **Day 2's persistence idea** and **Day 3's honest labelling**. Most teams won't do either of these two things. Everything else is just plumbing, and plumbing should stay simple.

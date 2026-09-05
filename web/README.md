@@ -1,31 +1,31 @@
 # Web dashboard — React + FastAPI
 
-Ye `app.py` (Streamlit) ka **doosra roop** hai, uski jagah nahi. Dono ek
-hi files padhte hain aur ek hi jawab dete hain.
+This is a **second form** of `app.py` (Streamlit), not a replacement for it. Both
+read the same files and give the same answers.
 
 | | Streamlit (`app.py`) | React (`web/` + `api/`) |
 |---|---|---|
-| Kiske liye | jaldi check karne ke liye | demo / judges ke saamne |
-| Chalana | `streamlit run app.py` | neeche dekho |
-| Dark mode | nahi | haan, toggle ke saath |
-| Data | seedha GeoPackage se | FastAPI se JSON |
+| For | quick checks | demo / in front of judges |
+| Run | `streamlit run app.py` | see below |
+| Dark mode | no | yes, with a toggle |
+| Data | straight from GeoPackage | JSON from FastAPI |
 
 ---
 
-## Chalane ka tareeka
+## How to run it
 
-### Ek command (demo ke liye — yahi use karo)
+### One command (for a demo — use this)
 
-Pehle React build karo, phir FastAPI use khud serve kar degi:
+Build React first, then FastAPI serves it itself:
 
 ```bash
 cd web && npm install && npm run build && cd ..
 venv/bin/uvicorn api.main:app --port 8000
 ```
 
-Kholo: **http://127.0.0.1:8000**
+Open: **http://127.0.0.1:8000**
 
-### Do terminal (jab code badal rahe ho)
+### Two terminals (while changing code)
 
 ```bash
 # terminal 1 - backend
@@ -35,62 +35,62 @@ venv/bin/uvicorn api.main:app --reload --port 8000
 cd web && npm run dev
 ```
 
-Kholo: **http://localhost:5173** (Vite `/api` ko 8000 pe bhej deta hai)
+Open: **http://localhost:5173** (Vite forwards `/api` to port 8000)
 
 ---
 
-## Kya kahan hai
+## What's where
 
 ```
-api/main.py                 saare JSON endpoints (koi calculation nahi -
-                            sirf pipeline ki banayi files padhta hai)
+api/main.py                 all JSON endpoints (no calculation -
+                            just reads the files the pipeline builds)
 web/src/App.jsx             shell: header, filters, tabs
-web/src/styles.css          saare rang aur design tokens - light + dark
-web/src/lib/theme.jsx       theme toggle + chart ke rang
+web/src/styles.css          all colors and design tokens - light + dark
+web/src/lib/theme.jsx       theme toggle + chart colors
 web/src/lib/api.js          fetch hook + number formatting
-web/src/components/         har tab ka apna file
+web/src/components/         one file per tab
 ```
 
 ## Endpoints
 
-| Endpoint | Kya deta hai |
+| Endpoint | What it returns |
 |---|---|
-| `GET /api/meta` | regions, classes — UI shuru mein yahi maangta hai |
-| `GET /api/summary` | upar ke bade numbers |
-| `GET /api/sources` | map ke points (filter + limit ke saath) |
-| `GET /api/priorities` | inspection wali ranked list |
-| `GET /api/recovered` | wo sources jinpe AI ne photo dekh kar jawab diya |
-| `GET /api/anomalies` | 3× baseline wale din |
-| `GET /api/validation` | paanchon validation checks ka data |
-| `GET /api/export` | GeoJSON download (QGIS ke liye) |
+| `GET /api/meta` | regions, classes — what the UI asks for first |
+| `GET /api/summary` | the big numbers at the top |
+| `GET /api/sources` | map points (with filter + limit) |
+| `GET /api/priorities` | the ranked inspection list |
+| `GET /api/recovered` | sources the AI answered by looking at the photo |
+| `GET /api/anomalies` | days at 3× baseline |
+| `GET /api/validation` | data for all five validation checks |
+| `GET /api/export` | GeoJSON download (for QGIS) |
 
-Swagger docs khud ban jaate hain: **http://127.0.0.1:8000/docs**
+Swagger docs are generated automatically: **http://127.0.0.1:8000/docs**
 
 ---
 
-## Do cheezein jo jaan-boojh kar aisi hain
+## Two things that are deliberately this way
 
-**1. Rang naape gaye hain, chune nahi gaye.**
-Classes ke liye blue / aqua-green / orange hai — laal-hara jodi nahi.
-Laal-hara sabse aam colour blindness (deuteranopia) mein bilkul ek jaisa
-dikhta hai. Ye teen rang colour-blind simulation mein bhi alag rehte hain
-(CVD ΔE 9.2 light / 9.4 dark, 8 ke target se upar). Har jagah rang ke
-saath uska **naam bhi likha** hota hai — rang akela kabhi matlab nahi
-batata.
+**1. Colors were measured, not picked.**
+Blue / aqua-green / orange for the classes — not a red-green pair.
+Red-green looks identical under the most common form of color blindness
+(deuteranopia). These three colors stay distinct even under a color-blind
+simulation (CVD ΔE 9.2 light / 9.4 dark, above the target of 8). Every
+color is also **labelled by name** wherever it appears — color alone
+never carries the meaning.
 
-**2. Map bhi theme badalta hai.**
-Dark UI pe safed map chipka dena sabse aam galti hai. Light mode mein
-Esri Light Gray Canvas, dark mein Dark Gray Canvas. (CartoDB isliye nahi
-kyunki ab wo API key maangta hai aur bina key ke har tile pe
-"API KEY REQUIRED" chhapa aata hai.)
+**2. The map switches theme too.**
+Sticking a white map on a dark UI is the most common mistake. Esri Light
+Gray Canvas in light mode, Dark Gray Canvas in dark mode. (Not CartoDB,
+because it now requires an API key and prints "API KEY REQUIRED" on
+every tile without one.)
 
 ---
 
 ## Theme
 
-Toggle top-right pe hai. Choice `localStorage` mein yaad rehti hai; pehli
-baar OS ki setting se chalti hai. `?theme=dark` URL mein daal do to link
-seedha dark mein khulega — screenshot lene ke liye kaam ka.
+The toggle is top-right. The choice is remembered in `localStorage`; the
+first run follows the OS setting. Add `?theme=dark` to the URL and the
+link opens straight into dark mode — useful for screenshots.
 
-Tab bhi URL mein rehta hai (`?tab=validation`), to link bhej kar seedha
-us tab pe bheja ja sakta hai.
+The tab is also kept in the URL (`?tab=validation`), so a link can be
+shared that opens directly to that tab.

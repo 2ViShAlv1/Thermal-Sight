@@ -1,15 +1,15 @@
-# Data Audit — kya adhoora tha aur kaise theek kiya
+# Data Audit — what was incomplete and how it was fixed
 
-**Kab:** Phase 4 shuru karne se pehle
-**Natija:** data galat nahi tha, par **adhoora** tha. Teen gap mile, teeno free mein bhare.
+**When:** before starting Phase 4
+**Bottom line:** the data wasn't wrong, but it was **incomplete**. Three gaps were found, all three filled for free.
 
 ---
 
-## Ek nazar mein
+## At a glance
 
-Do daur mein kaam hua — pehle data ke gap bhare, phir class imbalance ka.
+Work happened in two rounds — first the data gaps were filled, then the class imbalance.
 
-| | shuruaat | gap bharne ke baad | naye regions ke baad | **abhi** |
+| | at the start | after filling gaps | after adding regions | **now** |
 |---|---|---|---|---|
 | regions | 3 | 3 | 5 | **5** |
 | detections | 8,415 | 20,340 | 83,152 | **88,434** |
@@ -20,84 +20,87 @@ Do daur mein kaam hua — pehle data ke gap bhare, phir class imbalance ka.
 | **INDUSTRIAL labels** | **17** | 40 | 115 | **136** |
 | training rows | 3,858 | 6,063 | 8,822 | **16,474** |
 | **imbalance** | **177×** | 102× | 38× | **83×** |
-| rules ka score | 76% | 79% | — | **76.2%** |
+| rules' score | 76% | 79% | — | **76.2%** |
 
-Aakhri column current data hai (`python verify.py` se milta-julta). Pehli
-teen column purane daur hain — wo history hai, unhe mat badlo.
+The last column is the current data (matches `python verify.py`). The
+first three columns are earlier rounds — that's history, don't change
+them.
 
-Training rows 8,822 se 16,474 kyun ho gaye: rules ke thresholds dheele
-kiye gaye (detail `src/step4_labels.py` mein), isliye hazaaron sources
-UNSURE se nikal kar training mein aa gaye. Isi wajah se imbalance 38x se
-83x ho gaya — AGRI_BURN sabse zyada badha.
+Why training rows went from 8,822 to 16,474: the rule thresholds were
+loosened (details in `src/step4_labels.py`), so thousands of sources
+moved out of UNSURE and into training. That's also why the imbalance
+went from 38x to 83x — AGRI_BURN grew the most.
 
 ---
 
-## Gap 1 🔴 — Hum 3 mein se sirf 1 satellite use kar rahe the
+## Gap 1 🔴 — We were only using 1 of 3 satellites
 
-### Kya mila
+### What was found
 
-FIRMS se poocha ki 2025 ke liye kya-kya available hai. Jawab: **teen alag
-satellite** hain jo **bilkul ek jaisa VIIRS sensor** laad kar ghoom rahe hain —
-Suomi-NPP, NOAA-20, NOAA-21. Hum sirf pehla use kar rahe the.
+Checked with FIRMS what was available for 2025. Answer: there are
+**three separate satellites** carrying **the exact same VIIRS
+sensor** — Suomi-NPP, NOAA-20, NOAA-21. We were only using the first
+one.
 
-Test kiya (2 windows × 3 regions):
+Tested it (2 windows × 3 regions):
 
 ```
-VIIRS_SNPP_SP      244 detections   <- sirf ye use ho raha tha
+VIIRS_SNPP_SP      244 detections   <- this was the only one in use
 VIIRS_NOAA20_SP    264
 VIIRS_NOAA21_NRT   240
                    ─────
-teeno milakar      748  =  3.1x
+all three combined 748  =  3.1x
 ```
 
-### Kyun ye sirf "zyada data" se badi baat hai
+### Why this is more than just "more data"
 
-Phase 2 mein ek problem mili thi — `activity_ratio` isliye kaam nahi kar
-raha tha ki **satellite roz dekh hi nahi pata**. Reliance ka flare saal
-bhar jalta hai par sirf 91 alag dinon pe dikha tha.
+Phase 2 had found a problem — `activity_ratio` wasn't working because
+**the satellite simply couldn't look every day**. Reliance's flare
+burns all year but only showed up on 91 distinct days.
 
-**Teen satellite = teen guna zyada chakkar.**
+**Three satellites = three times as many passes.**
 
 ```
-Reliance ka n_days:   91  ->  185
+Reliance's n_days:   91  ->  185
 ```
 
-Ab wo lagbhag har doosre din dikh raha hai.
+Now it shows up almost every other day.
 
-### MODIS kyun nahi liya
+### Why MODIS wasn't used
 
-MODIS bhi available tha, par wo **1 kilometre** ka hai — bahut mota.
-Usme chhoti aagein aur factory ka flare ghul-mil jate. VIIRS 375 metre
-ka hai. Isliye sirf teeno VIIRS liye.
+MODIS was also available, but its resolution is **1 kilometre** — far
+too coarse. Small fires and a factory's flare would blur together.
+VIIRS is 375 metres. So only the three VIIRS satellites were used.
 
 ---
 
-## Gap 2 🔴 — Zameen ka type 82% "unknown" tha
+## Gap 2 🔴 — Land type was "unknown" for 82%
 
-### Problem
+### The problem
 
-`lc_class` OpenStreetMap se aa raha tha. Par OSM par log sadak aur
-building to map karte hain, **khet aur jungle nahi**.
+`lc_class` was coming from OpenStreetMap. But on OSM people map roads
+and buildings, **not fields and forests**.
 
-Aur ye sirf shak nahi tha — **tumhare 50 gold labels ne isse saabit kiya**:
-rules ki sabse badi galti (4 mein se 4) bilkul isi wajah se hui thi.
-OSM par wo jungle mapped hi nahi tha, isliye *"jungle pe nahi hai"* wali
-shart pass ho gayi aur khet wala rule chal pada.
+And this wasn't just a suspicion — **your 50 gold labels proved it**:
+the rules' single biggest category of mistake (4 out of 4) came
+exactly from this. The forest simply wasn't mapped on OSM, so the
+*"not on forest"* condition passed and the farmland rule fired
+instead.
 
 ### Solution — ESA WorldCover
 
-Ek satellite se bani hui tasveer, jisme poori duniya ki **har 10×10 metre**
-ki jagah pe likha hai wahan kya hai. Kisi insaan ne nahi banaya — satellite
-ne dekha aur likh diya. Isliye usme "unknown" hota hi nahi.
+A satellite-built image that records what's at **every 10×10 metre**
+patch of the entire Earth's surface. No human drew it — a satellite
+looked and recorded it. That's why it never has "unknown".
 
-**Free hai, bina login ke.** Chaar tiles chahiye thi (~390 MB):
+**Free, no login needed.** Four tiles were required (~390 MB):
 
 ```
 N21E069  (Jamnagar)      N30E075  (Punjab)
-N27E078  (Uttarakhand)   N30E078  (Uttarakhand ka upar ka hissa)
+N27E078  (Uttarakhand)   N30E078  (Uttarakhand's upper part)
 ```
 
-### Natija
+### Result
 
 ```
 'unknown':  82%  ->  0%
@@ -107,216 +110,222 @@ forest    4,357  ->   6,084
 urban        86  ->   1,016
 ```
 
-Aur ab har region ka sach dikh raha hai:
+And now each region's real character shows through:
 
-| region | pehle | ab |
+| region | before | now |
 |---|---|---|
 | **Punjab** | 99% unknown | **cropland 94%** |
 | **Uttarakhand** | 43% unknown | **forest 74%** |
 | Jamnagar | 99% unknown | cropland 50%, urban 30% |
 
-> Ye Phase 1 wali limitation ab **theek ho gayi**. Par slide 9 pe usse
-> hatana mat — ulta wo ab aur achhi kahani hai: *"humne problem pakdi,
-> naapi (1.3% coverage), aur ek behtar data source se theek ki."*
+> This is the Phase 1 limitation now **fixed**. But don't remove it
+> from slide 9 — if anything it's now a better story: *"we caught the
+> problem, measured it (1.3% coverage), and fixed it with a better
+> data source."*
 
 ---
 
-## Gap 3 🟠 — OSM ki aadhi file (jaan-boojh kar chhoda)
+## Gap 3 🟠 — Half of the OSM file (left out deliberately)
 
-Hum sirf `multipolygons` layer padh rahe the. Check kiya, akele Jamnagar mein:
+We were only reading the `multipolygons` layer. Checked, and in
+Jamnagar alone:
 
-| layer | industry-jaisi cheezein | padh rahe? |
+| layer | industry-like features | are we reading it? |
 |---|---|---|
 | multipolygons | 327 | ✅ |
 | lines | 298 | ❌ |
 | points | 17 | ❌ |
 
-Aur `Sikka Thermal Power Station`, `Essar Power Limited` jaise **asli naam**
-chhoot rahe hain.
+And **real names** like `Sikka Thermal Power Station` and `Essar Power
+Limited` are being missed.
 
-**Phir bhi nahi jodi.** Wajah: un 298 "lines" mein zyadatar pipelines aur
-deewarein hain. 2-3 naam ke liye itna shor badhana theek nahi.
+**Still not added.** Reason: most of those 298 "lines" are pipelines
+and walls. Adding that much noise for 2-3 names isn't worth it.
 
-*Ye ek jaan-boojh kar liya faisla hai, bhool nahi. Agar judge poochhe to
-yahi jawab hai.*
-
----
-
-## 🔴 Ek cheez toot gayi thi — aur uska sabak
-
-### Kya hua
-
-Naya data aane ke baad **50 gold labels galat jagah point karne lage**.
-50 mein se 47 ab bilkul alag jagah pe the — **median 60 kilometre door**.
-
-### Wajah
-
-`source_id` sirf ek **ginti** thi:
-
-```
-jamnagar_c0   = "Jamnagar ka pehla cluster"
-jamnagar_n335 = "Jamnagar ka 335va akela point"
-```
-
-Data badla → clusters naye sire se bane → poori ginti hil gayi.
-**Naam bacha raha, par uska matlab badal gaya.**
-
-### Do fix
-
-**1. Naam ab JAGAH se banta hai:**
-```
-purana:  jamnagar_n335
-naya  :  jamnagar_21.8032_69.8659
-```
-Ye data badalne pe bhi wahi rehta hai, kyunki jagah wahi rehti hai.
-Aur padhne mein bhi matlab rakhta hai.
-
-**2. `gold_labels.csv` mein ab lat/lon bhi save hota hai.**
-`rescue_gold_labels.py` har purani jagah ka sabse nazdeek naya source
-dhoondh kar label chipka deta hai.
-
-### Bacha kitna
-
-```
-47 / 50 labels bach gaye     (median fasla sirf 46 metre = wahi jagah)
- 3 nahi bach paye            (naye data mein wahan koi source bana hi nahi)
-```
-
-Balance ab bhi theek hai: **18 AGRI / 17 FOREST / 12 INDUSTRIAL**.
-
-### Sabak
-
-> **ID kabhi ginti se mat banao. Jo cheez badal sakti hai, usse naam mat
-> banao.** Naam kisi aisi cheez se bane jo cheez ke saath hi judi ho —
-> yahan wo uski jagah thi.
-
-Aur: **gold labels sirf ID se mat jodo, jagah se jodo.** Ab agar kabhi
-naya region ya naya saal add karoge, ye kaam dobara nahi karna padega.
+*This is a deliberate decision, not an oversight. If a judge asks,
+this is the answer.*
 
 ---
 
-## Ab data ka haal
+## 🔴 Something broke — and its lesson
 
-### Rules ka score behtar hua
+### What happened
 
-| | pehle | ab |
+After the new data arrived, **50 gold labels started pointing at the
+wrong place**. 47 of the 50 were now in a completely different
+location — **a median of 60 kilometres away**.
+
+### The reason
+
+`source_id` was just a **counter**:
+
+```
+jamnagar_c0   = "Jamnagar's first cluster"
+jamnagar_n335 = "Jamnagar's 335th lone point"
+```
+
+The data changed → clusters were rebuilt from scratch → the whole
+count shifted. **The name stayed, but its meaning changed.**
+
+### Two fixes
+
+**1. The name is now built from LOCATION:**
+```
+old:  jamnagar_n335
+new:  jamnagar_21.8032_69.8659
+```
+This stays the same even when the data changes, because the location
+stays the same. And it's more meaningful to read too.
+
+**2. `gold_labels.csv` now also saves lat/lon.**
+`rescue_gold_labels.py` finds the nearest new source to every old
+location and reattaches the label.
+
+### How much was recovered
+
+```
+47 / 50 labels recovered     (median distance only 46 metres = same spot)
+ 3 not recovered              (no source was formed there in the new data)
+```
+
+The balance is still fine: **18 AGRI / 17 FOREST / 12 INDUSTRIAL**.
+
+### The lesson
+
+> **Never build an ID from a counter. Don't name something after
+> something that can change.** A name should be built from something
+> tied to the thing itself — here, that was its location.
+
+And: **don't link gold labels by ID alone, link by location.** Now if
+a new region or a new year is ever added, this work won't need to be
+redone.
+
+---
+
+## The state of the data now
+
+### The rules' score improved
+
+| | before | now |
 |---|---|---|
-| coverage (rules ne jawab diya) | 33/50 | 29/47 |
-| **accuracy (jawab sahi tha)** | **76%** | **79%** |
+| coverage (rules answered) | 33/50 | 29/47 |
+| **accuracy (answer was correct)** | **76%** | **79%** |
 | `lc_class = unknown` in gold set | 41/50 | **0/47** |
 
-Aur wo sabse badi galti — "AGRI kaha, asal mein FOREST tha" — **4 se
-ghatkar 2** reh gayi.
+And that biggest category of mistake — "called AGRI, was actually
+FOREST" — **dropped from 4 to 2**.
 
-### Naye PERSISTENT sources
+### New PERSISTENT sources
 
-14 mile (pehle 5). Naye naam bhi mile — **Sohal Steel Works** (Punjab).
+14 found (up from 5). New names too — **Sohal Steel Works** (Punjab).
 
 ```
-Reliance Refinery      292 detections, 185 din, night 1.00
-Reliance Refinery      207 detections, 150 din, night 0.96
-SHREE DIGVIJAY CEMENT  173 detections, 108 din, night 1.00
-Vadinar Refinery       110 detections,  73 din, night 0.90
+Reliance Refinery      292 detections, 185 days, night 1.00
+Reliance Refinery      207 detections, 150 days, night 0.96
+SHREE DIGVIJAY CEMENT  173 detections, 108 days, night 1.00
+Vadinar Refinery       110 detections,  73 days, night 0.90
 ```
 
-### 18 anomalies (pehle 1)
+### 18 anomalies (up from 1)
 
-Sabse badi: **Vadinar Refinery, 21 April 2025** — normal se **16 guna**
-zyada garmi (26.2 MW vs normal 1.64 MW).
+The biggest: **Vadinar Refinery, 21 April 2025** — **16 times** hotter
+than normal (26.2 MW vs a normal 1.64 MW).
 
-### Ab bhi ek problem baaki hai
+### One problem still remains
 
 ```
 AGRI_BURN    4,073
 FOREST_FIRE  1,950
-INDUSTRIAL      40   <- ab bhi kam
+INDUSTRIAL      40   <- still low
 ```
 
-Imbalance 177× se ghatkar **102×** hua, par ab bhi bahut hai. Phase 4 mein
-class weights aur macro-F1 se sambhalna padega.
+Imbalance dropped from 177× to **102×**, but it's still large. Phase 4
+will need to handle it with class weights and macro-F1.
 
 ---
 
-## Verification — sab pass
+## Verification — all passing
 
 ```
 detections                                20,340
-CONSERVATION: sources ke n_detections ka total = 20,340  (ek bhi na kho, na dohra)
-har source_id unique
-source_id apni hi jagah batata hai        (300 sample, 0 galat)
-lc_class mein 'unknown' zero
-geometry sab valid
-saare gold source_id maujood
+CONSERVATION: sum of sources' n_detections = 20,340  (none lost, none doubled)
+every source_id is unique
+source_id correctly describes its own location  (300 sample, 0 wrong)
+zero 'unknown' in lc_class
+all geometry valid
+all gold source_ids present
 ```
 
 ---
 
-## Chalane ka naya order
+## New run order
 
 ```bash
-python src/step1_download.py       # 3 satellites  (~20 min pehli baar)
+python src/step1_download.py       # 3 satellites  (~20 min the first time)
 python src/step2_context.py        # OSM polygons + context
-python src/step2c_landcover.py     # ESA WorldCover  <- NAYA
+python src/step2c_landcover.py     # ESA WorldCover  <- NEW
 python src/step3_persistence.py    # clustering
-python src/step4_labels.py         # rules se labels
-python src/rescue_gold_labels.py   # gold labels dobara jodo  <- NAYA
+python src/step4_labels.py         # rule-based labels
+python src/rescue_gold_labels.py   # reattach gold labels  <- NEW
 ```
 
-**`step2c_landcover.py` ko `step2_context.py` ke BAAD hi chalana** — warna
-`features.gpkg` naye sire se banti hai aur landcover mit jata hai.
+**Run `step2c_landcover.py` only AFTER `step2_context.py`** — otherwise
+`features.gpkg` gets rebuilt from scratch and the landcover data is
+wiped out.
 
 
 ---
 
-# Daur 2 — Class imbalance
+# Round 2 — Class imbalance
 
 ## Problem
 
 ```
 AGRI_BURN    4,073
 FOREST_FIRE  1,950
-INDUSTRIAL      40   <- 102 guna kam
+INDUSTRIAL      40   <- 102 times fewer
 ```
 
-Itne imbalance pe model INDUSTRIAL theek se seekh hi nahi paata. Aur
-INDUSTRIAL hi to project ka asli target hai.
+At this level of imbalance the model can't properly learn INDUSTRIAL
+at all. And INDUSTRIAL is the project's actual target.
 
-## Wajah — teen, aur pehli sabse badi hai
+## Reasons — three, and the first is the biggest
 
-**1. Ginne ka tarika**
+**1. How things are counted**
 
 ```
-sources ginne pe    : 102x imbalance
-detections ginne pe :   5x imbalance
+counting by sources    : 102x imbalance
+counting by detections :   5x imbalance
 ```
 
-Ek kisan ek baar aag lagata hai = 1 detection = **1 source**.
-Ek refinery 292 baar dikhti hai = 292 detections = **1 source**.
+A farmer burning a field once = 1 detection = **1 source**.
+A refinery showing up 292 times = 292 detections = **1 source**.
 
-86% AGRI sources sirf ek detection ke hain; INDUSTRIAL ka **ek bhi nahi**
-(unka median 6 hai). To imbalance kaafi had tak **ginne ka natija** hai,
-asliyat ka nahi.
+86% of AGRI sources are a single detection; **not one** INDUSTRIAL
+source is (their median is 6). So the imbalance is largely a **result
+of how things are counted**, not of reality.
 
-**2. Region ka chunav** — 3 mein se sirf **ek** industrial region tha.
+**2. Choice of regions** — only **one** of the three regions was
+industrial.
 
-**3. Asliyat** — India mein refineries se kahin zyada khet ki aagein
-lagti hain. Ye poori tarah "problem" nahi hai.
+**3. Reality** — India genuinely has far more field fires than
+refineries. This isn't entirely a "problem" to be solved away.
 
 ---
 
-## Dataset dhoondha — WRI Global Power Plant Database
+## Found a dataset — WRI Global Power Plant Database
 
-Free, bina login. **1,589 India plants** coordinates + fuel type +
-capacity ke saath. Inme **388 thermal**.
+Free, no login. **1,589 India plants** with coordinates + fuel type +
+capacity. **388 of these are thermal.**
 
-### Fuel type sabse kaam ki cheez hai
+### Fuel type is the most useful field
 
-Solar aur wind plants **bilkul garmi nahi dete** — satellite unhe kabhi
-nahi dekhega. Coal, gas, oil, biomass dete hain.
+Solar and wind plants **produce no heat at all** — a satellite will
+never see them. Coal, gas, oil, and biomass do.
 
-OSM sirf `power=plant` likhta hai — ye nahi batata ki solar hai ya coal.
-Agar hum solar farm ko bhi "industry" maan lete, to uske paas wali khet
-ki aag galti se INDUSTRIAL ban jaati.
+OSM only marks `power=plant` — it doesn't say whether it's solar or
+coal. If a solar farm were counted as "industry" too, a nearby field
+fire would be wrongly labelled INDUSTRIAL.
 
 ```
 Coal      253 plants  (183,000 MW)
@@ -325,37 +334,38 @@ Biomass    50
 Oil        17
 ```
 
-### Ek aur cheez — point ko ghera banana
+### Another detail — turning a point into a boundary
 
-Database mein sirf **ek point** hota hai (plant ka beech). Par 4,000 MW
-ka plant zameen pe 2-3 km faila hota hai! Uske kone pe hui detection ka
-distance "0" nahi aayega agar sirf point rakhein.
+The database only gives **one point** (the plant's center). But a
+4,000 MW plant sprawls 2-3 km across the ground! A detection at its
+edge wouldn't come out as distance "0" if only the point were kept.
 
-Isliye capacity ke hisaab se ghera banaya:
-`radius = 300 + 15 × √(capacity_mw)` — 100 MW pe 450 m, 4,600 MW pe 1,320 m.
+So a boundary was built based on capacity:
+`radius = 300 + 15 × √(capacity_mw)` — 450 m at 100 MW, 1,320 m at
+4,600 MW.
 
 ---
 
-## Naye regions — guess nahi, data se chune
+## New regions — chosen from data, not guessed
 
-WRI database se nikala ki India ke sabse bade thermal cluster kahan hain
-(70 km ke andar wale plants ek saath ginke):
+Using the WRI database, India's biggest thermal clusters were found
+(plants within 70 km of each other counted together):
 
-| # | jagah | plants | capacity |
+| # | location | plants | capacity |
 |---|---|---|---|
 | **1** | **Korba/Sipat, Chhattisgarh** | 28 | **24,056 MW** |
 | **2** | **Singrauli, MP** | 9 | **21,164 MW** |
 | 3 | Chandrapur, Maharashtra | 33 | 16,903 MW |
-| 5 | *Jamnagar (hamara)* | 5 | 10,476 MW |
+| 5 | *Jamnagar (ours)* | 5 | 10,476 MW |
 
-Korba akela Jamnagar se **2.3 guna** bada hai.
+Korba alone is **2.3 times** bigger than Jamnagar.
 
-Dono **central-zone** pbf mein aate hain — jo pehle se download tha.
-Sirf FIRMS data aur 2 WorldCover tiles chahiye thi.
+Both fall within the **central-zone** pbf, which was already
+downloaded. Only the FIRMS data and 2 WorldCover tiles were needed.
 
 ---
 
-## ⭐ Natija
+## ⭐ Result
 
 ```
 INDUSTRIAL     40  ->  115
@@ -363,9 +373,9 @@ imbalance    102x  ->   38x
 PERSISTENT     14  ->  245
 ```
 
-Aur naye PERSISTENT sources mein **asli, bade naam**:
+And the new PERSISTENT sources include **real, major names**:
 
-| region | naam | detections | alag din | raat ka % |
+| region | name | detections | distinct days | % at night |
 |---|---|---|---|---|
 | korba | **Jindal Steel Works** | 3,968 | 288 | 79% |
 | korba | **Dipka Open Cast Mine** | 2,567 | 247 | 96% |
@@ -375,34 +385,34 @@ Aur naye PERSISTENT sources mein **asli, bade naam**:
 | singrauli | **Nigahi Mine** | 1,143 | 164 | 84% |
 | korba | **RAIGARH TPP** | 1,058 | 248 | 96% |
 
-**Gevra** India ki sabse badi coal mine hai. **Jindal Steel Works** aur
-**Prakash Industries** asli steel plants hain. **Nigahi / Jayant /
-Dudhichua** NCL ki bade coal mines hain.
+**Gevra** is India's largest coal mine. **Jindal Steel Works** and
+**Prakash Industries** are real steel plants. **Nigahi / Jayant /
+Dudhichua** are large NCL coal mines.
 
-99/245 PERSISTENT sources ke paas asli naam hai.
+99/245 PERSISTENT sources have a real name.
 
-Sabse badi anomaly: **Block-B coal mine, 30 May 2025** — normal se
-**64 guna** zyada garmi.
+Biggest anomaly: **Block-B coal mine, 30 May 2025** — **64 times**
+hotter than normal.
 
 ---
 
-## Jo abhi bhi problem hain (imaandari se)
+## What's still a problem (told honestly)
 
-**1. Gold labels sirf purane 3 regions ke hain.**
-45 gold labels Jamnagar/Punjab/Uttarakhand se hain. Korba aur Singrauli
-ka ek bhi nahi. Yani evaluation un naye regions ko cover nahi karta.
+**1. Gold labels only cover the original 3 regions.**
+45 gold labels are from Jamnagar/Punjab/Uttarakhand. None from Korba
+or Singrauli. So evaluation doesn't cover the new regions.
 
-*Ye actually ek MAUKA bhi hai:* Phase 4 mein model ko purane regions pe
-train karke naye pe test kar sakte ho — "kabhi na dekhe hue region" wala
-imtihaan. Wo bahut strong slide hai.
+*This is actually an OPPORTUNITY too:* in Phase 4 the model can be
+trained on the old regions and tested on the new ones — a "region it
+has never seen" exam. That's a strong slide.
 
-**2. Imbalance ab bhi 38x hai.** Behtar hai (177x se), par class weights
-aur macro-F1 ab bhi zaroori hain.
+**2. Imbalance is still 38x.** Better than 177x, but class weights and
+macro-F1 are still necessary.
 
-**3. 956 anomalies bahut zyada hain** dashboard pe dikhane ke liye.
-Phase 5 mein threshold ya top-N filter lagana padega.
+**3. 956 anomalies is too many** to display on a dashboard. Phase 5
+will need a threshold or a top-N filter.
 
-**4. Korba/Singrauli mein coal MINES zyada hain, refineries nahi.**
-Open cast mine ka thermal pattern refinery se alag hota hai. Ye achhi
-baat hai (variety badhi), par model ko "industrial" ke do alag roop
-seekhne padenge.
+**4. Korba/Singrauli have more coal MINES than refineries.** An open
+cast mine's thermal pattern differs from a refinery's. This is a good
+thing (more variety), but the model will need to learn two different
+faces of "industrial".

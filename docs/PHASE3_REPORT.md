@@ -1,32 +1,34 @@
-# Phase 3 — Har source ko naam dena (labelling)
+# Phase 3 — Naming every source (labelling)
 
-**Status: ✅ COMPLETE** | 20/20 checks pass | **50 gold labels ho gaye** ✅
-**Baaki hai:** sirf AI wala step (API key chahiye — Part 7)
+**Status: ✅ COMPLETE** | 20/20 checks pass | **50 gold labels done** ✅
+**Remaining:** only the AI step (needs an API key — Part 7)
 
 ---
 
-## 1. Ek kahani se shuru
+## 1. Let's start with a story
 
-Socho tumhare paas 6,010 photos hain — sab mein ek chamakta hua dhabba.
-Tumhe har photo pe likhna hai ki wo dhabba kya hai: **factory**, **jungle
-ki aag**, ya **khet ki aag**.
+Imagine you have 6,010 photos — each with a bright dot in it. You need
+to write on every photo what that dot is: a **factory**, a **forest
+fire**, or a **field fire**.
 
-Ek-ek karke likhne baitho to 6,010 minute = **100 ghante** lag jayenge.
+Sit down and label them one by one and that's 6,010 minutes = **100
+hours**.
 
-To hum teen tarike milakar kaam karte hain:
+So three methods are combined:
 
-| Tarika | Kitne sources | Kaun karta hai |
+| Method | How many sources | Who does it |
 |---|---|---|
-| **1. Rules** — seedhi shartein | 3,858 (64%) | code, 1 second mein |
-| **2. AI** — satellite photo dekhkar | 100 | Claude |
-| **3. Insaan** — tum khud | 50 | **tum, ~1 ghanta** |
+| **1. Rules** — simple conditions | 3,858 (64%) | code, in 1 second |
+| **2. AI** — looks at the satellite photo | 100 | Claude |
+| **3. Human** — you yourself | 50 | **you, ~1 hour** |
 
-Pehla tarika **sasta aur tez** hai par kachcha. Doosra **mehenga par smart**.
-Teesra **sabse mehenga par sabse sacha**.
+The first method is **cheap and fast** but crude. The second is
+**expensive but smart**. The third is **most expensive but most
+honest**.
 
 ---
 
-## 2. ⭐ Result — rules chal gaye
+## 2. ⭐ Result — the rules worked
 
 ```
 6,010 sources
@@ -34,10 +36,10 @@ Teesra **sabse mehenga par sabse sacha**.
   FOREST_FIRE    824   (13.7%)
   AGRI_BURN    3,017   (50.2%)
   ─────────────────────────────
-  UNSURE       2,152   (35.8%)   <- inpe koi rule fit nahi baitha
+  UNSURE       2,152   (35.8%)   <- no rule fit these
 ```
 
-Region ke hisaab se:
+By region:
 
 | | AGRI_BURN | FOREST_FIRE | INDUSTRIAL | UNSURE |
 |---|---|---|---|---|
@@ -45,249 +47,259 @@ Region ke hisaab se:
 | **Punjab** | **2,593** | 3 | 6 | 1,174 |
 | **Uttarakhand** | 284 | **821** | 1 | 657 |
 
-Dekho — har region mein wahi label sabse zyada hai jo hona chahiye tha.
-Punjab mein khet, Uttarakhand mein jungle, Jamnagar mein factory.
-**Rules kaam kar rahe hain.**
+Look — in every region, the label that dominates is exactly the one
+that should. Farmland in Punjab, forest in Uttarakhand, factories in
+Jamnagar. **The rules are working.**
 
 ---
 
-## 3. Teen rules — poora "gyaan" bas itna hai
+## 3. Three rules — that's the entire "knowledge" here
 
-### INDUSTRIAL — factory ka flare
-
-```
-factory se 1 km ke andar  AND  ek baar ki ghatna nahi hai
-```
-
-**Doosri shart kyun:** factory ke bagal mein bhi koi ek baar aag laga
-sakta hai (kachra jalana waghairah). Wo factory ka flare nahi hai.
-
-### FOREST_FIRE — jungle ki aag
+### INDUSTRIAL — a factory's flare
 
 ```
-jungle wale ilaake pe hai  AND  factory se 5 km door  AND  ek baar ki ghatna hai
+within 1 km of a factory  AND  not a one-off event
 ```
 
-### AGRI_BURN — khet ki aag
+**Why the second condition:** someone could burn something once right
+next to a factory too (burning trash, say). That's not the factory's
+flare.
 
-Ye rule **plan se alag hai**, aur wajah pakki hai. Neeche Part 4 mein.
+### FOREST_FIRE — a forest fire
+
+```
+on a forested area  AND  5 km from a factory  AND  a one-off event
+```
+
+### AGRI_BURN — a field fire
+
+This rule **differs from the plan**, and for a solid reason. See Part
+4 below.
 
 ---
 
-## 4. 🔴 Plan ka rule chal hi nahi sakta tha — humne badla
+## 4. 🔴 The plan's rule simply couldn't work — we changed it
 
-**Ye finale ka achha jawab hai.**
+**This is a good answer for the finals.**
 
-### Plan kya kehta hai
+### What the plan says
 
 ```
 AGRI_BURN = lc_class == "cropland" AND ...
 ```
 
-Yani source kisi **"khet" wale polygon pe** hona chahiye.
+Meaning the source had to sit on a **"farmland" polygon**.
 
-### Wo kaam kyun nahi karta
+### Why that doesn't work
 
-Phase 1 mein hi pata chal gaya tha:
+This was already discovered in Phase 1:
 
-> Punjab ke **5,113 detections** mein se sirf **PAANCH** kisi khet wale
-> polygon pe hain. Kyunki OpenStreetMap pe Punjab ke khet mapped hi
-> nahi hain — poore ilaake ka sirf **1.3%**.
+> Of Punjab's **5,113 detections**, only **FIVE** sit on any farmland
+> polygon. Because Punjab's farmland simply isn't mapped on
+> OpenStreetMap — only **1.3%** of the whole area.
 
-Log OSM pe sadak aur building to map karte hain, khet nahi.
+People map roads and buildings on OSM, not fields.
 
-Agar hum plan ka rule lagate, to **Punjab ka 61% data UNSURE reh jata** —
-aur AGRI_BURN class practically khaali hoti.
+Applying the plan's rule as-is would have left **61% of Punjab's data
+as UNSURE** — and the AGRI_BURN class would be practically empty.
 
-### Humne kya kiya
+### What was done instead
 
-"Khet pe hai" ki jagah **paanch shartein** lagayin, jo milkar wahi kaam
-karti hain:
+Instead of "sits on farmland", **five conditions** were used together
+to do the same job:
 
 ```
-1. jungle pe NAHI hai              (warna forest fire hoti)
-2. factory se 3 km door hai
-3. ek baar ki ghatna hai
-4. katai ke mahine mein hui        (Apr/May = gehun, Oct/Nov = dhaan)
-5. DIN mein hui                    (night_ratio < 0.3)
+1. NOT on forest                    (otherwise it'd be a forest fire)
+2. 3 km from a factory
+3. a one-off event
+4. happened during harvest months   (Apr/May = wheat, Oct/Nov = rice)
+5. happened during the DAY          (night_ratio < 0.3)
 ```
 
-**Chauthi aur paanchvi shart Phase 2 ke findings se aayi hain:**
-- Punjab ke **93%** detections inhi 4 mahinon mein hain
-- Punjab ke **97%** detections din ke hain (kisan din mein jalata hai),
-  jabki factory ke flare ka night_ratio **1.00** tha
+**Conditions 4 and 5 came from Phase 2's findings:**
+- **93%** of Punjab's detections fall in exactly these 4 months
+- **97%** of Punjab's detections are daytime (a farmer burns during
+  the day), while a factory's flare had a night_ratio of **1.00**
 
-> **Judge se kya kehna:** *"Plan mein cropland polygon wala rule tha.
-> Maine data check kiya to pata chala OSM pe Punjab ke khet mapped hi
-> nahi hain — sirf 1.3% coverage. To maine us ek shart ki jagah paanch
-> aisi shartein lagayin jo satellite data se hi nikalti hain, kisi
-> bahar ke naksha pe depend nahi karti."*
+> **What to tell a judge:** *"The plan had a cropland-polygon rule. I
+> checked the data and found Punjab's farmland isn't mapped on OSM at
+> all — only 1.3% coverage. So instead of that one condition, I used
+> five conditions that come straight from the satellite data itself,
+> with no dependence on an external map."*
 
 ---
 
-## 5. "Pata nahi" kehna — ek soch samajh kar liya faisla
+## 5. Saying "I don't know" — a deliberate decision
 
-2,152 sources (36%) **UNSURE** hain. Ye **failure nahi hai**, design hai.
+2,152 sources (36%) are **UNSURE**. This is **not a failure**, it's a
+design choice.
 
-Agar kisi source pe:
-- **koi rule fit nahi baitha** → UNSURE
-- **do rules ek saath fit baithe** (jaise jungle ke paas bhi hai aur
-  factory ke paas bhi) → UNSURE
+For any source where:
+- **no rule fit** → UNSURE
+- **two rules fit at once** (e.g. near forest and near a factory both)
+  → UNSURE
 
-Hum zabardasti ek label nahi thopte.
+we don't force a label onto it.
 
-**Kyun:** galat label model ko galat cheez sikha dega. **"Pata nahi"
-kehna galat jawab dene se behtar hai.** Aur inhi UNSURE cases pe AI aur
-insaan ki nazar padegi — wahin se asli seekh milegi.
+**Why:** a wrong label would teach the model the wrong thing. **Saying
+"I don't know" is better than giving a wrong answer.** And it's
+exactly these UNSURE cases that AI and human eyes will look at — the
+real learning happens there.
 
-### `needs_review` — kispe dobara dekhna hai
+### `needs_review` — what needs a second look
 
-**2,156 sources** pe review chahiye:
-1. jo UNSURE hain
-2. jo **"confusing zone"** mein hain — factory se **500 se 3000 metre**
-   door. Ye khatarnak doori hai: itni paas ki shayad factory ka hissa
-   ho, itni door ki shayad bilkul alag cheez. Rules yahan sabse zyada
-   galti karte hain.
+**2,156 sources** need review:
+1. those that are UNSURE
+2. those in the **"confusing zone"** — between **500 and 3000 metres**
+   from a factory. This is a dangerous distance: close enough that it
+   might be part of the factory, far enough that it might be something
+   entirely different. Rules make most of their mistakes here.
 
 ---
 
-## 6. Anomaly — "aaj kuch alag hua"
+## 6. Anomaly — "something different happened today"
 
-Anomaly ek **alag cheez** hai, class nahi.
+An anomaly is a **separate thing**, not a class.
 
-**Idea:** agar koi factory roz 5 MW garmi deti hai, aur ek din achanak
-20 MW de de — to **us din kuch hua tha**.
+**The idea:** if a factory gives off 5 MW of heat every day, and one
+day it suddenly gives off 20 MW — then **something happened that
+day**.
 
-Har PERSISTENT source ke liye dekha ki kis din ki garmi uske **apne
-normal se 3 guna** se zyada thi.
+For every PERSISTENT source, each day's heat was compared against
+**that source's own normal**.
 
-*"Apne normal se"* — ye zaroori hai. Har factory ka apna normal alag
-hota hai; badi refinery ka 8 MW normal ho sakta hai, chhoti ka 2 MW.
+*"Against its own normal"* — this matters. Every factory's normal is
+different; a big refinery might normally run at 8 MW, a small one at 2
+MW.
 
 ### Result
 
-| source | date | us din FRP | normal FRP | kitna guna |
+| source | date | that day's FRP | normal FRP | how many times |
 |---|---|---|---|---|
 | **Reliance Refinery** | 2025-11-09 | 6.95 | 1.63 | **4.26×** |
 
-Ek anomaly mili. **9 November 2025 ko Reliance ke flare ne apne normal
-se 4 guna zyada garmi di.**
+One anomaly found. **On November 9, 2025, the Reliance flare gave off
+4 times its normal heat.**
 
-*Sirf ek kyun mili:* abhi sirf 5 PERSISTENT sources hain, aur unki garmi
-kaafi steady hai. Ye achhi baat hai — matlab threshold shor nahi utha
-raha. Dashboard mein ye tab dikhega.
+*Why only one:* there are only 5 PERSISTENT sources so far, and their
+heat is fairly steady. That's a good thing — it means the threshold
+isn't raising noise. This will show up as a tab in the dashboard.
 
 ---
 
-## 7. AI wala step (code ready hai, chalna baaki)
+## 7. The AI step (code ready, hasn't run yet)
 
-`src/step4b_vlm.py` — confusing sources ki **satellite photo** nikaal kar
-Claude se poochta hai *"is photo mein kya dikh raha hai?"*
+`src/step4b_vlm.py` pulls a **satellite photo** of confusing sources
+and asks Claude *"what do you see in this photo?"*
 
-**Kyun kaam karta hai:** rules sirf **numbers** dekhte hain (doori,
-mahina, raat/din). Photo mein **aankhon se** dikh jata hai ki wahan
-factory hai, jungle hai, ya khet. Jahan OSM ka data adhoora hai (jaise
-Punjab ke khet), wahan **photo hi sach bata sakti hai**.
+**Why it works:** rules only look at **numbers** (distance, month,
+day/night). A photo shows **with your own eyes** whether there's a
+factory, forest, or field there. Where OSM's data is incomplete (like
+Punjab's farmland), **the photo alone can tell the truth**.
 
-### 🔴 Ek bug jo banate waqt pakda — photo galat jagah ki aa rahi thi
+### 🔴 A bug caught while building this — the photo was of the wrong place
 
-Naksha chhote chaukor tukdon (tiles) mein bata hua hai. Lat/long se tile
-ka number nikalte waqt dashamlav kat jata hai — `22743.99` ban jata hai
+Maps are stored as small square tiles. When computing the tile number
+from lat/long, the decimal gets truncated — `22743.99` becomes
 `22743`.
 
-Iska matlab hamari jagah us tile ke **kone** pe bhi ho sakti thi.
-Zoom 15 pe ek tile **~1.2 km** ka hota hai, to source photo ke beech se
-**1 km tak hat** sakta tha.
+That meant our location could end up right at a tile's **corner**. At
+zoom 15 a tile is **~1.2 km**, so the source could be **up to 1 km**
+away from the photo's center.
 
-Aur hum Claude se keh rahe the *"photo ke BEECH wale hisse ko dekho"* —
-wo galat jagah dekhta!
+And we were telling Claude *"look at the CENTER of the photo"* — it
+would look at the wrong spot!
 
-Test karke dekha: Reliance ka offset **(0.72, 0.99)** nikla — yani
-bilkul kone pe.
+Tested it: Reliance's offset came out as **(0.72, 0.99)** — right at
+the corner.
 
-**Fix:** 3×3 = 9 tiles download karke jodte hain, phir source ke theek
-upar se 512×512 ka chaukor kaat lete hain. Ab source **pakka beech mein**
-hai. Test karke confirm kiya — Reliance ki photo mein storage tanks aur
-process units bilkul beech mein aaye.
+**Fix:** download 3×3 = 9 tiles, stitch them together, then crop a
+512×512 square directly over the source. Now the source is
+**guaranteed centered**. Confirmed by testing — Reliance's photo shows
+its storage tanks and process units right in the middle.
 
-### Do aur cheezein jo theek ki
+### Two more things fixed
 
-**Structured output** — Claude se JSON maangne ki jagah **schema** diya
-hai. Isse jawab **hamesha** valid JSON aata hai. Warna kabhi-kabhi model
-` ```json ` laga deta hai aur code crash ho jata.
+**Structured output** — instead of asking Claude for JSON in plain
+text, a **schema** was given. This guarantees the answer **always**
+comes back as valid JSON. Without it, the model would sometimes wrap
+the reply in ` ```json ` and crash the code.
 
-**Model** — plan mein `claude-sonnet-4-6` likha tha, wo purana ho chuka
-hai. Ab `claude-opus-5` use kar rahe hain (`config.py` mein badal sakte ho).
+**Model** — the plan named `claude-sonnet-4-6`, which is now outdated.
+`claude-opus-5` is used now (can be changed in `config.py`).
 
-### 🔴 Chalane ke liye API key chahiye
+### 🔴 Needs an API key to run
 
 ```bash
-# .env mein ye line add karo:
+# add this line to .env:
 ANTHROPIC_API_KEY=sk-ant-...
 ```
-Key yahan se: https://console.anthropic.com/settings/keys
+Get a key here: https://console.anthropic.com/settings/keys
 
-Phir:
+Then:
 ```bash
-python src/step4b_vlm.py --limit 20    # pehle 20 pe test karo
-python src/step4b_vlm.py               # phir poore 100
+python src/step4b_vlm.py --limit 20    # test on the first 20
+python src/step4b_vlm.py               # then run on all 100
 ```
 
 ---
 
-## 8. 🔴 Ab tumhe ye 2 kaam karne hain
+## 8. 🔴 You now have 2 things to do
 
-### Kaam 1 — API key daalo (2 minute)
+### Task 1 — add the API key (2 minutes)
 
-Upar Part 7 mein likha hai. Bina iske AI wala step nahi chalega.
-Pehle `--limit 20` se test karna, phir poora.
+Covered in Part 7 above. The AI step won't run without it. Test with
+`--limit 20` first, then run the full batch.
 
-### Kaam 2 — 50 sources khud label karo ✅ **HO GAYA**
+### Task 2 — label 50 sources yourself ✅ **DONE**
 
-Result Part 12 mein hai. Neeche wala hissa reference ke liye hai.
+The result is in Part 12. The section below is kept for reference.
 
 ---
 
-### (ho chuka) 50 sources khud label karna ⭐
+### (done) Labelling 50 sources yourself ⭐
 
 ```bash
 streamlit run src/gold_ui.py
 ```
 
-Ek app khulegi. Har source pe dikhega:
-- **satellite photo** (source beech mein)
-- **FRP ka chart** — waqt ke saath garmi kaise badli
-- **saare numbers** — kitni baar dikha, kitne din, raat ka %, factory se doori
-- **Google Maps ka link** — shak ho to wahan zoom karke dekh lo
+An app opens. For each source it shows:
+- **satellite photo** (source centered)
+- **an FRP chart** — how the heat changed over time
+- **all the numbers** — how often seen, over how many days, % at night,
+  distance from factory
+- **a Google Maps link** — zoom in there if unsure
 - **4 buttons:** INDUSTRIAL / FOREST_FIRE / AGRI_BURN / UNCLEAR
-- **notes box**
+- **a notes box**
 
-Ek source pe **~1 minute**. Progress save hota rehta hai — beech mein
-chhod ke wapas aa sakte ho. Chai leke baithna.
+About **1 minute** per source. Progress is saved continuously — you
+can stop partway and come back. Grab a cup of tea and sit down for it.
 
-#### Ye skip mat karna — wajah samjho
+#### Don't skip this — here's why
 
-Baaki 3,858 labels **rules** ne banaye hain. Agar model ko unhi pe test
-karoge, to tum sirf ye check kar rahe ho ki **"model ne mere rules ratt
-liye ya nahi"**. Wo accuracy **jhoothi** hai — 95% aayegi aur uska koi
-matlab nahi hoga.
+The other 3,858 labels were made by **rules**. Testing the model only
+against those just checks **"did the model memorize my own rules"**.
+That accuracy would be **fake** — it'd come out at 95% and mean
+nothing.
 
-Ye 50 labels **insaan** ne banaye hain. Model ne inhe kabhi nahi dekha.
-**Isi liye inpe mila score hi saccha score hai.**
+These 50 labels were made by a **human**. The model has never seen
+them. **That's exactly why the score on them is the honest score.**
 
-Aur ek faayda: label karte waqt tumhe **3-4 aisi galtiyan khud dikhengi**
-jo koi rule nahi pakad sakta — jaise koi factory OSM pe hai hi nahi, ya
-koi jagah dono jaisi lagti hai. **Wahi tumhari sabse achhi slide banegi.**
+One more benefit: while labelling, you'll spot **3-4 mistakes yourself**
+that no rule could ever catch — like a factory that isn't even on OSM,
+or a spot that looks like it could be either. **That will make your
+best slide.**
 
-*(App ke andar hi ek "Kaise decide karun?" section hai — confuse ho to
-wo khol lena.)*
+*(There's a "How do I decide?" section built into the app itself — open
+it if you're unsure.)*
 
-#### 50 sources kaise chune
+#### How the 50 sources were chosen
 
-Random 50 uthate to zyadatar Punjab ke AGRI_BURN aa jate (wahi sabse
-zyada hain) aur INDUSTRIAL ek bhi nahi. Test set bekaar ho jata.
+Picking 50 at random would have pulled mostly Punjab's AGRI_BURN cases
+(there are the most of those) and zero INDUSTRIAL. The test set would
+be useless.
 
-Isliye har (region × label) ke jode se **barabar** uthaye hain:
+So an **equal** number was drawn from every (region × label) pair:
 
 | | AGRI_BURN | FOREST_FIRE | INDUSTRIAL | UNSURE |
 |---|---|---|---|---|
@@ -295,99 +307,101 @@ Isliye har (region × label) ke jode se **barabar** uthaye hain:
 | Punjab | 7 | 3 | 4 | 6 |
 | Uttarakhand | 4 | 6 | 1 | 6 |
 
-Har tarah ka source test mein aa gaya. (Isse **stratified sampling**
-kehte hain — finale mein ye shabd kaam aayega.)
+Every kind of source made it into the test set. (This is called
+**stratified sampling** — that term will come in handy at the finals.)
 
 ---
 
 ## 9. Verification — 20/20 pass
 
-Sirf "error nahi aaya" kaafi nahi. Har rule ko **ulta** check kiya:
+Just "no errors" isn't enough. Every rule was checked **backwards**:
 
 ```
-6,010 rows      - sources se ek bhi kam/zyada nahi
-har source pe label hai, koi khaali nahi
+6,010 rows      - not one more or fewer than the sources
+every source has a label, none blank
 
-har INDUSTRIAL  : sach mein <1km AND non-episodic hai
-har FOREST_FIRE : sach mein forest AND >5km AND episodic hai
-har AGRI_BURN   : sach mein paanchon shart poori karta hai
+every INDUSTRIAL  : is genuinely <1km AND non-episodic
+every FOREST_FIRE : is genuinely forest AND >5km AND episodic
+every AGRI_BURN   : genuinely satisfies all five conditions
 
-UNSURE bilkul wahi hain jinpe theek ek rule nahi laga
-needs_review = UNSURE ya confusing-zone
+UNSURE are exactly those where no single rule fit
+needs_review = UNSURE or confusing-zone
 
-har anomaly ka ratio > 3, aur sirf PERSISTENT sources se
+every anomaly has ratio > 3, and only from PERSISTENT sources
 ```
 
-**Aur code bhi test kiya:**
-- tile math — `(0,0)` se `16384,16384` (naksha ka bilkul beech) ✓
-- chip download — Reliance ki asli photo, 512×512, beech mein ✓
-- gold UI — Streamlit ke apne test framework se chalayi, button dabaya,
-  CSV likhi ✓
-- 50 sources ka chunav deterministic hai (app dobara kholo, wahi 50) ✓
+**The code was also tested:**
+- tile math — from `(0,0)` to `16384,16384` (the exact center of the
+  map) ✓
+- chip download — Reliance's actual photo, 512×512, centered ✓
+- gold UI — run through Streamlit's own test framework, button pressed,
+  CSV written ✓
+- the choice of 50 sources is deterministic (reopen the app, same 50) ✓
 
 ---
 
-## 10. Files aur chalane ka tareeka
+## 10. Files and how to run it
 
 ```bash
 source venv/bin/activate
 
 python src/step4_labels.py       # rules      (1 second)
-python src/step4b_vlm.py         # AI         (API key chahiye)
-streamlit run src/gold_ui.py     # tum        (~1 ghanta)
+python src/step4b_vlm.py         # AI         (needs an API key)
+streamlit run src/gold_ui.py     # you        (~1 hour)
 ```
 
-| File | Kya hai |
+| File | What it is |
 |---|---|
 | `data/processed/sources_labelled.gpkg` | 6,010 sources + label |
 | `data/processed/anomalies.csv` | 1 anomaly |
-| `data/processed/gold_labels.csv` | *(tumhare 50 labels — abhi banegi)* |
+| `data/processed/gold_labels.csv` | *(your 50 labels — created once run)* |
 | `data/chips/*.jpg` | satellite photos |
 
-**Naye columns** `sources_labelled.gpkg` mein:
+**New columns** in `sources_labelled.gpkg`:
 
-| Column | Matlab |
+| Column | Meaning |
 |---|---|
-| `rule_label` | rules ne kya kaha (kabhi nahi badalta) |
-| `label` | **final label** — AI ya insaan ise badal sakte hain |
-| `label_source` | ye label kahan se aaya: `rule` / `vlm` / `none` |
-| `needs_review` | ispe dobara dekhna hai? |
-| `vlm_landuse` | AI ne photo mein kya dekha *(VLM chalne ke baad)* |
+| `rule_label` | what the rules said (never changes) |
+| `label` | **final label** — AI or a human can change this |
+| `label_source` | where this label came from: `rule` / `vlm` / `none` |
+| `needs_review` | does this need a second look? |
+| `vlm_landuse` | what the AI saw in the photo *(after the VLM runs)* |
 
-`rule_label` alag rakhne ka faayda: baad mein compare kar sakte ho ki
-**AI ne rules ki kitni galtiyan sudhari** — wo bhi ek slide hai.
+The benefit of keeping `rule_label` separate: later you can compare
+**how many of the rules' mistakes the AI fixed** — that's a slide of
+its own.
 
 ---
 
-## 11. Phase 4 ke liye
+## 11. For Phase 4
 
-Model train hoga. Do baatein yaad rakhni hain:
+The model gets trained. Two things to keep in mind:
 
-**1. `lon`/`lat` ko feature mat banana.** Warna model *"Jamnagar =
-factory"* ratta maar lega aur naye shehar mein fail ho jayega.
+**1. Don't make `lon`/`lat` a feature.** Otherwise the model will just
+memorize *"Jamnagar = factory"* and fail in a new city.
 
-**2. Teen alag score nikalna honge:**
+**2. Three separate scores are needed:**
 - normal cross-validation
-- GroupKFold (ek hi source train aur test dono mein na aaye)
-- **50 gold labels pe** ← ye sabse kam aayega
+- GroupKFold (the same source never in both train and test)
+- **on the 50 gold labels** ← this will come out the lowest
 
-**Score girna galat nahi hai — wahi imaandari hai.** Slide 5 yahi
-banegi, aur wahi tumhe baaki teams se alag karegi.
+**A lower score here isn't wrong — it's honest.** That's what Slide 5
+will be, and it's what will set you apart from other teams.
 
-Expected: gold-set pe **0.75–0.85**. Agar 0.97 aaya to kahin galti hai
-(shayad lat/long feature mein reh gaya).
+Expected: **0.75–0.85** on the gold set. If it comes out at 0.97,
+something's wrong somewhere (probably a lat/long feature leaking in).
 
-**3. Ab ek baseline bhi hai.** Rules ka gold set pe apna score **76%**
-hai (Part 12). Model ko usse behtar karna chahiye — warna saabit ho
-jayega ki model ne rules ko sirf ratta maara hai, unse zyada kuch nahi
-seekha.
+**3. There's now a baseline too.** The rules' own score on the gold set
+is **76%** (Part 12). The model should beat that — otherwise it would
+prove the model only memorized the rules and learned nothing beyond
+them.
 
 
 ---
 
-## 12. ⭐ Gold labels ka result — aur yahi sabse keemti cheez nikli
+## 12. ⭐ Gold label results — and this turned out to be the most valuable part
 
-50 sources haath se label ho gaye:
+50 sources were hand-labelled:
 
 ```
 AGRI_BURN     18
@@ -395,99 +409,102 @@ FOREST_FIRE   18
 INDUSTRIAL    14
 ```
 
-Achha balance — teeno class kaafi hain, aur ek bhi UNCLEAR nahi.
+Good balance — all three classes are well represented, and none are
+UNCLEAR.
 
-### Rules ka asli score — do alag numbers
+### The rules' real score — two separate numbers
 
-Ek hi number se baat nahi banti, kyunki rules kabhi-kabhi *"pata nahi"*
-bhi kehte hain. To do numbers chahiye:
+One single number doesn't tell the story, because the rules sometimes
+say *"I don't know"* too. So two numbers are needed:
 
 | | |
 |---|---|
-| **Coverage** — rules ne kitno pe jawab diya | **33/50 = 66%** |
-| **Accuracy** — jawab diya to kitna sahi | **25/33 = 76%** |
-| rules ne "pata nahi" kaha | 17/50 |
+| **Coverage** — how many the rules answered | **33/50 = 66%** |
+| **Accuracy** — of those answered, how many correct | **25/33 = 76%** |
+| rules said "don't know" | 17/50 |
 
-**"Pata nahi" kehna galti nahi hai — wo design tha.** Isi liye AI aur
-insaan wala step banaya gaya.
+**Saying "I don't know" isn't a mistake — it was by design.** That's
+exactly why the AI and human steps exist.
 
-> **Ye do numbers alag batana zaroori hai.** Agar tum sirf "50 mein se 25
-> sahi = 50%" kehte, to wo bhram paida karta — jaise rules aadhe waqt
-> galat hain. Asal mein wo aadhe waqt **chup** rehte hain, aur jab bolte
-> hain to 76% sahi bolte hain.
+> **It's important to report these two numbers separately.** Saying
+> just "25 out of 50 correct = 50%" would be misleading — as if the
+> rules are wrong half the time. In reality they stay **silent** half
+> the time, and when they do answer, they're right 76% of the time.
 
-### 🔴 Galtiyon ka pattern — aur wo ek hi wajah se hain
+### 🔴 The pattern in the mistakes — and they share one cause
 
-| rules ne kaha | asal mein tha | kitni baar |
+| rules said | it actually was | how many times |
 |---|---|---|
 | AGRI_BURN | **FOREST_FIRE** | **4** |
 | AGRI_BURN | INDUSTRIAL | 2 |
 | FOREST_FIRE | AGRI_BURN | 1 |
 | INDUSTRIAL | FOREST_FIRE | 1 |
 
-Sabse badi galti (4 baar) ko khod kar dekha:
+Digging into the biggest category of mistake (4 times):
 
-> **Charon** ka `lc_class` **"unknown"** tha.
+> All **four** had `lc_class` = **"unknown"**.
 
-Yani OSM pe wo jungle **mapped hi nahi tha**. Isliye AGRI rule ki pehli
-shart — *"jungle pe NAHI hai"* — pass ho gayi, aur rule chal pada.
-Jabki photo mein saaf jungle dikh raha tha.
+Meaning the forest simply **wasn't mapped** on OSM. So the AGRI rule's
+first condition — *"NOT on forest"* — passed, and the rule fired.
+Even though the photo clearly showed forest.
 
-**Ye wahi OSM gap hai jo Phase 1 mein Punjab ke khet pe mila tha — par
-ab wo doosri taraf se kaat raha hai.** In 50 sources mein:
+**This is the same OSM gap found in Phase 1 for Punjab's farmland —
+just cutting from the other direction now.** Among these 50 sources:
 
 ```
 lc_class = unknown   41   (82%)
 lc_class = forest     9   (18%)
 ```
 
-**82% sources ki zameen ka type OSM ko pata hi nahi hai.**
+**OSM has no idea what kind of land 82% of these sources sit on.**
 
-> Slide 9 (Limitations) ke liye ye ab bahut mazboot ho gaya. Pehle ye
-> ek shak tha; ab **insaan ke labels se saabit** ho chuka hai ki OSM ka
-> adhoora hona rules ki sabse badi galti ki wajah hai.
+> This is now very strong material for Slide 9 (Limitations). What was
+> once a suspicion is now **proven by human labels**: OSM's
+> incompleteness is the rules' single biggest source of error.
 
-### Aur jo tumne rules se behtar pakda
+### And what you caught better than the rules
 
-**4 sources** aise the jinpe rules ne haath khade kar diye, par tumne
-INDUSTRIAL pehchan liya. Sabse dilchasp:
+**4 sources** where the rules gave up, but you correctly identified
+INDUSTRIAL. The most interesting one:
 
-| source | raat ka % | factory se doori | kitni baar dikha |
+| source | % at night | distance from factory | how often seen |
 |---|---|---|---|
 | `jamnagar_n32` | **100%** | **57 m** | 1 |
 
-Ye source factory ki chaardiwari se **57 metre** door hai aur **raat ko**
-dikha — koi bhi keh dega ki industrial hai. Par rule ne mana kar diya,
-kyunki wo sirf **ek baar** dikha tha aur INDUSTRIAL rule maangta hai ki
-"ek baar ki ghatna na ho".
+This source is **57 metres** from the factory's boundary and showed up
+**at night** — anyone would call it industrial. But the rule rejected
+it, because it only showed up **once**, and the INDUSTRIAL rule
+requires "not a one-off event."
 
-**Ye rule ka ek asli chhed hai** — aur wo insaan ne pakda, code ne nahi.
+**This is a genuine hole in the rule** — and a human caught it, not
+the code.
 
-### 🔴 Par ab in galtiyon ko dekh kar rules mat sudharna
+### 🔴 But don't now go and "fix" the rules using these mistakes
 
-Ye jaal bahut aasan hai, isliye samajh lo:
+This trap is very easy to fall into, so understand it clearly:
 
-Ab jab tumhe pata chal gaya hai ki rules kahan galat hain, to mann karega
-ki rules theek kar do. **Aisa karte hi ye 50 labels bekaar ho jayenge.**
+Now that you know where the rules go wrong, you'll be tempted to fix
+them. **Doing that would make these 50 labels worthless.**
 
-Kyunki phir rules **inhi 50 ko dekh kar** banaye gaye honge — aur inhi pe
-test karoge to 100% aa jayega. Wo number jhootha hoga. Ye wahi galti hai
-jisse bachne ke liye ye 50 labels banaye the.
+Because then the rules would have been **built by looking at these
+exact 50** — and testing on them again would give 100%. That number
+would be fake. That's the exact mistake these 50 labels were created
+to avoid.
 
-**Ye 50 label sirf JAANCHNE ke liye hain, banane ke liye nahi.**
+**These 50 labels exist only to CHECK, not to build.**
 
-*(Agar rules sudharne hi hain, to un 5,960 sources ko dekh kar sudharo jo
-in 50 mein nahi hain.)*
+*(If the rules do need fixing, do it by looking at the other 5,960
+sources — the ones not in these 50.)*
 
-### Aage kaise use honge
+### How these will be used going forward
 
 ```
-Phase 4 mein model TRAIN hoga  -> rules ke 3,858 labels pe
-Phase 4 mein model TEST hoga   -> in 50 gold labels pe
+Phase 4 will TRAIN the model  -> on the rules' 3,858 labels
+Phase 4 will TEST the model   -> on these 50 gold labels
 ```
 
-Aur ab tumhare paas **rules ka apna score (76%)** bhi hai. Agar model
-uss se behtar karta hai, to saabit ho jayega ki **model ne rules se
-zyada seekha hai, sirf unhe ratta nahi maara.**
+And now there's also **the rules' own score (76%)** to compare
+against. If the model beats it, that proves **the model learned more
+than the rules, not just memorized them.**
 
-Ye ek slide hai jo shayad hi koi doosri team dikha paye.
+This is a slide almost no other team will be able to show.
